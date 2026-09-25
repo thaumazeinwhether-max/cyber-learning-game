@@ -89,6 +89,8 @@ IT通常戦は4択、ITボス戦は正誤判断と用語記述です。Python通
 
 進捗はブラウザーの署名付きセッションに保存します。開発版ではアプリを再起動すると進捗が初期化されます。
 
+現在遊べるIT・Pythonのコースは、Phase 1全体の正式な12訓練ではなく初期実装です。正式な学習範囲と出題方針は [`docs/LEARN_CURRICULUM.md`](docs/LEARN_CURRICULUM.md) を参照してください。
+
 ## 起動方法
 
 Pythonをインストールしたうえで、プロジェクトのルートで実行します。
@@ -122,6 +124,8 @@ python -m src.app
 詳細な企画方針は以下を参照してください。
 
 * `docs/PROJECT_BRIEF.md`
+* `docs/LEARN_CURRICULUM.md`
+* `docs/MVP_V0_1.md`
 * `AGENTS.md`
 
 ## License
