@@ -4,6 +4,9 @@ from src.computer_os_data import COMPUTER_OS_COURSE
 from src.python_basics_1_data import PYTHON_BASICS_1_COURSE
 from src.network_basics_data import NETWORK_BASICS_COURSE
 from src.web_http_data import WEB_HTTP_COURSE
+from src.python_basics_2_data import PYTHON_BASICS_2_COURSE
+from src.web_creation_data import WEB_CREATION_COURSE
+from src.flask_basics_data import FLASK_BASICS_COURSE
 
 
 COURSES = {
@@ -11,6 +14,9 @@ COURSES = {
     "python_basics_1": PYTHON_BASICS_1_COURSE,
     "network_basics": NETWORK_BASICS_COURSE,
     "web_http": WEB_HTTP_COURSE,
+    "python_basics_2": PYTHON_BASICS_2_COURSE,
+    "web_creation": WEB_CREATION_COURSE,
+    "flask_basics": FLASK_BASICS_COURSE,
     "it": {
         "title": "IT基礎訓練",
         "description": "コンピュータ、ネットワーク、Webの基本を学ぶコース。",

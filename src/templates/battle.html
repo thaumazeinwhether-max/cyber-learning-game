@@ -15,6 +15,7 @@
       <p class="eyebrow">{{ "CORRECT / HIT / 攻撃成功" if progress.question_correct else "INCORRECT / ATTACK FAILED" }}</p>
       <h2>{{ "ENEMY DEFEATED / 敵を撃破！" if progress.question_correct else "今回は不正解" }}</h2>
       <h3>{{ question.prompt }}</h3>
+      {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
       {% if not progress.question_correct %}
         <p>あなたの回答：</p>
         {% if question_mode == "choice" %}<p><strong>{{ submitted_answer }}</strong></p>{% else %}<pre><code>{{ submitted_answer }}</code></pre>{% endif %}
@@ -31,6 +32,7 @@
   {% else %}
     <section class="panel question-panel">
       <h2>{{ question.prompt }}</h2>
+      {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
       <form method="post" action="{{ url_for('learn.answer_battle', course_id=course_id, lesson_id=lesson.id) }}">
         <input type="hidden" name="question_index" value="{{ progress.question_index }}">
         {% if question_mode == "choice" %}

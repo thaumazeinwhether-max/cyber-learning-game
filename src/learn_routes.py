@@ -11,7 +11,10 @@ from src.learn_data import COURSES, get_lesson
 learn = Blueprint("learn", __name__, url_prefix="/learn")
 
 # 正式訓練だけを順番に解放する。初期版の体験コースは従来どおり利用可能。
-FORMAL_COURSE_IDS = ("computer_os", "python_basics_1", "network_basics", "web_http")
+FORMAL_COURSE_IDS = (
+    "computer_os", "python_basics_1", "network_basics", "web_http",
+    "python_basics_2", "web_creation", "flask_basics",
+)
 
 
 def dev_mode():
@@ -291,7 +294,8 @@ def boss(course_id):
         return redirect(url_for("learn.course_home", course_id=course_id))
     question = course["boss"][progress["boss_index"]]
     answer = progress.get("boss_submitted_answer", "")
-    if course["question_mode"] == "choice":
+    question_mode = question.get("mode", course["question_mode"])
+    if question_mode == "choice":
         if question["type"] == "true_false":
             correct_answer = "○ 正しい" if question["answer"] == "true" else "× 間違っている"
             submitted_answer = {"true": "○ 正しい", "false": "× 間違っている"}.get(answer, "未選択")
@@ -314,7 +318,7 @@ def boss(course_id):
         "boss.html", course=course, course_id=course_id,
         progress=progress, question=question, max_hp=len(course["boss"]),
         correct_answer=correct_answer, submitted_answer=submitted_answer,
-        wrong_explanation=wrong_explanation,
+        wrong_explanation=wrong_explanation, question_mode=question_mode,
     )
 
 

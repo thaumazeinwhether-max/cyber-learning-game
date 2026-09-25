@@ -22,7 +22,7 @@
           {% if progress.boss_submitted_code %}<pre><code>{{ progress.boss_submitted_code }}</code></pre>{% endif %}
         {% endif %}
         <p>正解：<strong>{{ correct_answer }}</strong></p>
-        {% if course.question_mode == "code" and not question.valid %}<pre><code>{{ question.answer }}</code></pre>{% endif %}
+        {% if question_mode == "code" and not question.valid %}<pre><code>{{ question.answer }}</code></pre>{% endif %}
         <h3>解説</h3><p>{{ question.explanation }}</p>
         {% if not progress.boss_correct and wrong_explanation %}<p class="answer-feedback">回答を見直すポイント：{{ wrong_explanation }}</p>{% endif %}
         <p>今回の正解数：{{ progress.boss_correct_count }} / {{ max_hp }}</p>
@@ -33,16 +33,16 @@
     {% else %}
     <form method="post" action="{{ url_for('learn.answer_boss', course_id=course_id) }}">
       <input type="hidden" name="question_index" value="{{ progress.boss_index }}">
-      {% if course.question_mode == "choice" and question.type == "true_false" %}
+      {% if question_mode == "choice" and question.type == "true_false" %}
         <fieldset class="choices"><legend>正しいか判断する</legend>
           <label><input type="radio" name="answer" value="true" required> ○ 正しい</label>
           <label><input type="radio" name="answer" value="false" required> × 間違っている</label>
         </fieldset>
-      {% elif course.question_mode == "choice" and question.options %}
+      {% elif question_mode == "choice" and question.options %}
         <fieldset class="choices"><legend>答えを1つ選ぶ</legend>
           {% for option in question.options %}<label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>{% endfor %}
         </fieldset>
-      {% elif course.question_mode == "choice" %}
+      {% elif question_mode == "choice" %}
         <label for="answer">用語を入力</label>
         <input id="answer" name="answer" type="text" maxlength="100" required>
       {% else %}

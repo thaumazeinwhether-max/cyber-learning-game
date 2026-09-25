@@ -251,7 +251,7 @@ def test_dev_can_complete_all_four_courses_in_order(client, monkeypatch):
             assert browser_session["learn_progress"][course_id]["course_complete"]
     final_page = client.get("/learn/web_http/complete").get_data(as_text=True)
     assert "Python基礎Ⅱ" in final_page
-    assert "準備中" in final_page
+    assert "/learn/python_basics_2/" in final_page
     assert client.get("/learn/network_basics/").status_code == 200
 
 
