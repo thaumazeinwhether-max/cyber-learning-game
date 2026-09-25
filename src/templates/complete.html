@@ -1,0 +1,15 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ course.title }} 修了{% endblock %}
+{% block breadcrumb %} / {{ course.title }} 修了{% endblock %}
+{% block content %}
+  <div class="panel completion course-completion">
+    <p class="eyebrow">BOSS DEFEATED / COURSE COMPLETE</p>
+    <div class="completion-mark" aria-hidden="true">✦</div>
+    <h1>{{ course.title }} 修了</h1>
+    <p>3つの訓練とボス戦をクリアしました。</p>
+    <div class="completion-actions">
+      <a class="button" href="{{ url_for('learn.course_home', course_id=course_id) }}">訓練選択へ戻る</a>
+      <a class="button button-secondary" href="{{ url_for('learn.home') }}">Learnトップへ戻る</a>
+    </div>
+  </div>
+{% endblock %}

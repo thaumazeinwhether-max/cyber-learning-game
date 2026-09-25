@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}サイバー防衛学校{% endblock %} | Cyber Learning Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main class="container">
+      <nav class="breadcrumbs" aria-label="現在地">
+        <a href="{{ url_for('index') }}">ホーム</a> / <a href="{{ url_for('learn.home') }}">サイバー防衛学校</a>
+        {% block breadcrumb %}{% endblock %}
+      </nav>
+      {% if dev_mode %}<p class="dev-badge">DEV MODE</p>{% endif %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <p class="notice notice-{{ category }}" role="status">{{ message }}</p>
+        {% endfor %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

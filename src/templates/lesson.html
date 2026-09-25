@@ -1,0 +1,30 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ lesson.title }}{% endblock %}
+{% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}</a> / {{ lesson.title }}{% endblock %}
+{% block content %}
+  <header class="intro">
+    <p class="eyebrow">INPUT / {{ course.title }}</p>
+    <h1>{{ lesson.title }}</h1>
+    <p>{{ lesson.summary }}</p>
+  </header>
+  <section class="lesson-points" aria-label="学習内容">
+    {% for point in lesson.points %}
+      <article class="panel">
+        <h2><strong class="term">{{ point.term }}</strong></h2>
+        <p>{{ point.text }}</p>
+        <p class="example">例：{{ point.example }}</p>
+      </article>
+    {% endfor %}
+  </section>
+  {% if lesson.code %}
+    <section class="panel code-lesson">
+      <h2>コード例</h2>
+      <pre><code>{{ lesson.code }}</code></pre>
+      <p>{{ lesson.code_explanation }}</p>
+    </section>
+  {% endif %}
+  <aside class="takeaway"><strong>これだけ覚えよう</strong><p>{{ lesson.takeaway }}</p></aside>
+  <form method="post" action="{{ url_for('learn.start_lesson', course_id=course_id, lesson_id=lesson.id) }}">
+    <button class="button" type="submit">訓練開始{{ "（再挑戦）" if completed else "" }}</button>
+  </form>
+{% endblock %}

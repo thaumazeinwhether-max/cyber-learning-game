@@ -1,0 +1,44 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ course.title }}・ボス戦{% endblock %}
+{% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}</a> / ボス戦{% endblock %}
+{% block content %}
+  <p class="eyebrow">FINAL BATTLE / {{ course.title }}</p>
+  <h1>ボス戦</h1>
+  <p>正解するたびにHPが1減ります。あと{{ progress.boss_hp }}問です。</p>
+  <p class="encounter-alert boss-alert">BOSS DETECTED / 最終訓練開始</p>
+  <div class="enemy-card boss-enemy enemy-arrival">
+    <span class="enemy-icon" aria-hidden="true">✦</span>
+    <div class="boss-details"><span class="boss-label">BOSS</span><strong>訓練ボス</strong><p class="hp" aria-label="ボスHP {{ progress.boss_hp }} / {{ max_hp }}">BOSS HP: {{ "■" * progress.boss_hp }}{{ "□" * (max_hp - progress.boss_hp) }}</p><div class="hp-track" role="progressbar" aria-label="ボスHP" aria-valuemin="0" aria-valuemax="{{ max_hp }}" aria-valuenow="{{ progress.boss_hp }}"><span class="hp-fill" style="width: {{ progress.boss_hp / max_hp * 100 }}%"></span></div></div>
+  </div>
+  <section class="panel question-panel">
+    <p class="eyebrow">問題 {{ progress.boss_index + 1 }} / {{ max_hp }}</p>
+    <h2>{{ question.prompt }}</h2>
+    {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
+    <form method="post" action="{{ url_for('learn.answer_boss', course_id=course_id) }}">
+      <input type="hidden" name="question_index" value="{{ progress.boss_index }}">
+      {% if course_id == "it" and question.type == "true_false" %}
+        <fieldset class="choices"><legend>正しいか判断する</legend>
+          <label><input type="radio" name="answer" value="true" required> ○ 正しい</label>
+          <label><input type="radio" name="answer" value="false" required> × 間違っている</label>
+        </fieldset>
+      {% elif course_id == "it" %}
+        <label for="answer">用語を入力</label>
+        <input id="answer" name="answer" type="text" maxlength="100" required>
+      {% else %}
+        <fieldset class="choices"><legend>このコードは正しいか？</legend>
+          <label><input type="radio" name="answer" value="correct" required> 正しい</label>
+          <label><input type="radio" name="answer" value="incorrect" required> 間違っている</label>
+        </fieldset>
+        <label for="corrected_code">間違っている場合は、正しいコードを入力</label>
+        <textarea id="corrected_code" name="corrected_code" rows="5" maxlength="1000" spellcheck="false"></textarea>
+      {% endif %}
+      <button class="button" type="submit">回答する</button>
+    </form>
+    {% if dev_mode %}
+      <form method="post" action="{{ url_for('learn.answer_boss', course_id=course_id) }}" class="dev-form">
+        <input type="hidden" name="question_index" value="{{ progress.boss_index }}">
+        <button type="submit" name="action" value="dev_skip">開発用：この問題を正解扱いにする</button>
+      </form>
+    {% endif %}
+  </section>
+{% endblock %}

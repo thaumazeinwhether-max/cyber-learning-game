@@ -1,0 +1,46 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block breadcrumb %} / {{ course.title }}{% endblock %}
+{% block content %}
+  <header class="intro">
+    <p class="eyebrow">TRAINING SELECT / 訓練選択</p>
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+    <p class="flow">教材 → 通常戦 → 教材 → 通常戦 → 教材 → 通常戦 → ボス戦</p>
+    <p>修了した訓練を確認し、挑戦する訓練を選んでください。</p>
+  </header>
+  <h2>訓練選択</h2>
+  <ol class="course-path" aria-label="訓練一覧">
+    {% for lesson in course.lessons %}
+      {% set unlocked = loop.first or course.lessons[loop.index0 - 1].id in progress.completed_lessons %}
+      {% set completed = lesson.id in progress.completed_lessons %}
+      <li class="panel training-card {{ 'state-complete' if completed else ('state-ready' if unlocked else 'state-locked') }}">
+        <p class="eyebrow">TRAINING {{ "%02d"|format(loop.index) }}</p>
+        {% if completed %}
+          <p class="training-status status-complete">✓ 修了済み</p>
+        {% elif unlocked %}
+          <p class="training-status status-ready">▶ 挑戦可能</p>
+          <p class="training-substatus">{{ "訓練中" if progress.active_lesson == lesson.id else "未開始" }}</p>
+        {% else %}
+          <p class="training-status status-locked">LOCKED / ロック中</p>
+        {% endif %}
+        <h2>{{ lesson.title }}</h2>
+        <p>短い教材 → 敵2体との戦闘</p>
+        {% if unlocked %}<a class="button" href="{{ url_for('learn.lesson_page', course_id=course_id, lesson_id=lesson.id) }}">{{ "もう一度訓練する" if completed else "教材を読む" }}</a>{% endif %}
+      </li>
+    {% endfor %}
+    <li class="panel boss-panel training-card {{ 'state-complete' if progress.course_complete else ('state-ready' if boss_unlocked else 'state-locked') }}">
+      <p class="eyebrow">FINAL TRAINING</p>
+      <p class="training-status {{ 'status-complete' if progress.course_complete else ('status-ready' if boss_unlocked else 'status-locked') }}">{{ "✓ 修了済み" if progress.course_complete else ("▶ 挑戦可能" if boss_unlocked else "LOCKED / ロック中") }}</p>
+      <h2>BOSS / ボス戦</h2>
+      <p>学んだ内容を使って、HP3のボスを倒そう。</p>
+      {% if progress.course_complete %}
+        <a class="button" href="{{ url_for('learn.complete', course_id=course_id) }}">修了画面へ</a>
+      {% elif boss_unlocked %}
+        <form method="post" action="{{ url_for('learn.start_boss', course_id=course_id) }}">
+          <button class="button" type="submit">{{ "ボス戦を続ける" if progress.boss_started else "ボス戦開始" }}</button>
+        </form>
+      {% endif %}
+    </li>
+  </ol>
+{% endblock %}

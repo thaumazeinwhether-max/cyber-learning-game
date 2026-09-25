@@ -1,0 +1,21 @@
+{% extends "learn_base.html" %}
+{% block title %}サイバー防衛学校{% endblock %}
+{% block content %}
+  <header class="intro">
+    <p class="eyebrow">Cyber Defense Academy</p>
+    <h1>サイバー防衛学校</h1>
+    <p>短く学び、訓練で敵を倒し、最後にボスへ挑もう。</p>
+    <p class="flow">学習 → 戦闘 → 学習 → 戦闘 → ボス戦 → 修了</p>
+  </header>
+  <h2>訓練コースを選ぶ</h2>
+  <div class="course-grid">
+    {% for course_id, course in courses.items() %}
+      <article class="panel">
+        <p class="eyebrow">{{ "01" if course_id == "it" else "02" }} / TRAINING</p>
+        <h3>{{ course.title }}</h3>
+        <p>{{ course.description }}</p>
+        <a class="button" href="{{ url_for('learn.course_home', course_id=course_id) }}">コースを見る</a>
+      </article>
+    {% endfor %}
+  </div>
+{% endblock %}

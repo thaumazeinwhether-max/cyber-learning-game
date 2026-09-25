@@ -1,0 +1,44 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ lesson.title }}・通常戦{% endblock %}
+{% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}</a> / 通常戦{% endblock %}
+{% block content %}
+  <p class="eyebrow">OUTPUT BATTLE / {{ lesson.title }}</p>
+  <h1>通常戦</h1>
+  <p>敵 {{ progress.question_index + 1 }} / {{ lesson.questions|length }}。直前の教材を思い出して答えよう。</p>
+  <p class="encounter-alert">{{ "THREAT ELIMINATED / 脅威を排除" if progress.enemy_defeated else "ENEMY DETECTED / 敵性プログラムを検知" }}</p>
+  <div class="enemy-card {{ 'defeated' if progress.enemy_defeated else 'enemy-arrival' }}">
+    <span class="enemy-icon" aria-hidden="true">◆</span>
+    <div><strong>{{ "ENEMY DEFEATED / 訓練ドローン撃破" if progress.enemy_defeated else "訓練ドローン" }}</strong><p>ENEMY HP: {{ 0 if progress.enemy_defeated else 1 }} / 1</p></div>
+  </div>
+  {% if progress.enemy_defeated %}
+    <div class="panel success-panel"><p class="eyebrow">HIT / 攻撃成功</p><h2>敵を撃破！</h2><p>{{ question.explanation }}</p></div>
+    <form method="post" action="{{ url_for('learn.next_enemy', course_id=course_id, lesson_id=lesson.id) }}">
+      <button class="button" type="submit">{{ "次の敵へ" if progress.question_index + 1 < lesson.questions|length else "訓練結果を見る" }}</button>
+    </form>
+  {% else %}
+    <section class="panel question-panel">
+      <h2>{{ question.prompt }}</h2>
+      <form method="post" action="{{ url_for('learn.answer_battle', course_id=course_id, lesson_id=lesson.id) }}">
+        <input type="hidden" name="question_index" value="{{ progress.question_index }}">
+        {% if course_id == "it" %}
+          <fieldset class="choices"><legend>答えを1つ選ぶ</legend>
+            {% for option in question.options %}
+              <label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>
+            {% endfor %}
+          </fieldset>
+        {% else %}
+          <label for="answer">コードを入力</label>
+          <textarea id="answer" name="answer" rows="5" maxlength="1000" spellcheck="false" required></textarea>
+          <p class="hint">入力したコードは実行されません。構文を比べて判定します。</p>
+        {% endif %}
+        <button class="button" type="submit">回答する</button>
+      </form>
+      {% if dev_mode %}
+        <form method="post" action="{{ url_for('learn.answer_battle', course_id=course_id, lesson_id=lesson.id) }}" class="dev-form">
+          <input type="hidden" name="question_index" value="{{ progress.question_index }}">
+          <button type="submit" name="action" value="dev_skip">開発用：この問題を正解扱いにする</button>
+        </form>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}
