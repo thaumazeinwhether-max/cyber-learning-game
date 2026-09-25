@@ -74,7 +74,24 @@ Learnフェーズで身につけた知識を使い、自分の仮想システム
 
 ## Status
 
-🚧 Planning / Initial Development
+🚧 開発土台を作成済み。現在は3フェーズを紹介するトップページのみ表示できます。
+
+## 起動方法
+
+Pythonをインストールしたうえで、プロジェクトのルートで実行します。
+
+```powershell
+python -m pip install --user -r requirements.txt
+python -m src.app
+```
+
+ブラウザーで `http://127.0.0.1:5000/` を開いてください。停止するときはターミナルで `Ctrl+C` を押します。
+
+テストは次のコマンドで実行できます。
+
+```powershell
+python -m pytest
+```
 
 ## Documentation
 
