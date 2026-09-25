@@ -3,13 +3,14 @@
 {% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}・訓練選択</a> / 訓練修了{% endblock %}
 {% block content %}
   <section class="panel completion training-completion">
-    <p class="eyebrow">TRAINING COMPLETE</p>
+    <p class="eyebrow">PERFECT / {{ "UNIT COMPLETE / TRAINING COMPLETE" if course.curriculum_number else "TRAINING COMPLETE" }}</p>
     <div class="completion-mark" aria-hidden="true">✓</div>
     <h1>{{ lesson.title }} 修了</h1>
-    <p>訓練ドローンを2体撃破しました。次の訓練が解放されました。</p>
+    <p class="result-score">{{ lesson.questions|length }} / {{ lesson.questions|length }} 正解</p>
+    <p>すべての問題に正解しました。{{ "次のUNIT" if next_lesson else "BOSS" }}が解放されました。</p>
     <div class="completion-actions">
       {% if next_lesson %}
-        <a class="button" href="{{ url_for('learn.lesson_page', course_id=course_id, lesson_id=next_lesson.id) }}">次の訓練へ</a>
+        <a class="button" href="{{ url_for('learn.lesson_page', course_id=course_id, lesson_id=next_lesson.id) }}">{{ "次のUNITへ" if course.curriculum_number else "次の訓練へ" }}</a>
       {% else %}
         <form method="post" action="{{ url_for('learn.start_boss', course_id=course_id) }}">
           <button class="button" type="submit">ボス戦へ</button>

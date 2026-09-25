@@ -87,6 +87,7 @@ a { color: #93e4d3; }
 .button:hover, .button:focus-visible { background: #a8efe0; }
 .button-secondary { border: 1px solid #79d9c5; color: #b9f0e4; background: transparent; }
 .button-secondary:hover, .button-secondary:focus-visible { color: #10251f; }
+.button-disabled { color: #c8d2df; background: #465166; cursor: not-allowed; }
 
 .breadcrumbs { margin-bottom: 28px; color: #aebdd2; }
 .intro { margin-bottom: 40px; }
@@ -101,6 +102,12 @@ a { color: #93e4d3; }
 
 .panel h2, .panel h3 { margin-top: 0; }
 .course-grid, .lesson-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.lesson-intro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.mechanism-card, .diagram-card, .misconception { margin: 16px 0; }
+.concept-flow { display: flex; flex-wrap: wrap; gap: 12px; padding: 0; list-style: none; }
+.concept-flow li { flex: 1 1 160px; padding: 12px; border: 1px solid #52657d; border-radius: 8px; background: #142238; }
+.misconception { border-left: 4px solid #f5b768; }
+.next-course-note { color: #ffdcaa; }
 .course-path { display: grid; gap: 16px; padding: 0; list-style: none; }
 .course-path .panel { border-left: 5px solid #79d9c5; }
 .course-path .boss-panel { border-left-color: #f5b768; }
@@ -119,6 +126,34 @@ a { color: #93e4d3; }
 .takeaway { margin: 24px 0; padding: 18px; border-radius: 8px; background: #25413f; }
 .takeaway p { margin-bottom: 0; }
 .code-lesson { margin-top: 16px; }
+
+/* 参考書型UNIT。本文はデータに置き、この共通スタイルで読み進められる形にする。 */
+.chapter-connection { margin-bottom: 20px; border-left: 4px solid #79d9c5; }
+.chapter-connection p, .lesson-intro-grid p { margin-bottom: 0; }
+.chapter-nav { margin: 24px 0; padding: 20px 24px; border: 1px solid #52657d; border-radius: 12px; background: #162438; }
+.chapter-nav strong { color: #d7f8ee; }
+.chapter-nav ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px 20px; margin: 12px 0 0; padding-left: 22px; }
+.chapter-section { margin: 28px 0; padding: clamp(20px, 4vw, 32px); border: 1px solid #37465d; border-radius: 12px; background: #1c2940; scroll-margin-top: 24px; }
+.chapter-section h2 { margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1px solid #52657d; color: #d7f8ee; }
+.chapter-section p { max-width: 74ch; margin: 14px 0; }
+.chapter-list { padding-left: 24px; }
+.chapter-list li, .chapter-callout li { margin: 6px 0; }
+.table-scroll { overflow-x: auto; margin: 22px 0; }
+.comparison-table { width: 100%; min-width: 500px; border-collapse: collapse; text-align: left; }
+.comparison-table th, .comparison-table td { padding: 12px; border: 1px solid #52657d; vertical-align: top; }
+.comparison-table th { color: #d7f8ee; background: #253c4b; }
+.comparison-table tr:nth-child(even) { background: #17263b; }
+.chapter-code { margin: 22px 0; }
+.chapter-code pre { margin-bottom: 0; white-space: pre; }
+.chapter-code figcaption { margin-top: 8px; color: #b8c9df; font-size: 0.92rem; }
+.chapter-flow { margin: 20px 0; }
+.chapter-flow li { min-width: 160px; }
+.chapter-callout { margin: 22px 0; padding: 16px 20px; border-left: 4px solid #79d9c5; border-radius: 8px; background: #183841; }
+.chapter-callout p { margin-bottom: 0; }
+.chapter-callout.warning { border-left-color: #f5b768; background: #3b2b31; }
+.chapter-callout.key-points { border-left-color: #9de3b8; background: #25413f; }
+.chapter-callout.key-points h3 { margin: 0 0 10px; }
+.chapter-callout.key-points ul { margin: 0; padding-left: 24px; }
 
 pre, textarea { font-family: Consolas, "Courier New", monospace; }
 pre { overflow-x: auto; padding: 18px; border-radius: 8px; color: #d5f8ed; background: #0c1422; }
@@ -148,7 +183,7 @@ textarea, input[type="text"] {
 .boss-enemy .enemy-icon, .hp { color: #f5b768; }
 .boss-details { flex: 1; }
 .boss-label { display: block; width: max-content; margin-bottom: 6px; padding: 2px 8px; border: 1px solid #f5b768; border-radius: 4px; color: #f5b768; font-weight: bold; letter-spacing: 0.1em; }
-.hp { font-family: Consolas, "Courier New", monospace; font-weight: bold; letter-spacing: 0.15em; }
+.hp { overflow-wrap: anywhere; font-family: Consolas, "Courier New", monospace; font-weight: bold; letter-spacing: 0.1em; }
 .hp-track { width: 100%; height: 12px; margin-top: 12px; overflow: hidden; border: 1px solid #a97559; border-radius: 6px; background: #1c1720; }
 .hp-fill { display: block; height: 100%; border-radius: 6px; background: #f5b768; transition: width 250ms ease-out; }
 .choices { display: grid; gap: 10px; margin: 16px 0; padding: 0; border: 0; }
@@ -157,6 +192,9 @@ textarea, input[type="text"] {
 .notice { padding: 12px 16px; border-radius: 8px; }
 .notice-success, .success-panel { background: #25413f; }
 .notice-error { background: #553039; }
+.answer-failed, .failed-completion { border-color: #b8796f; background: #392b37; }
+.answer-feedback { padding: 12px 16px; border-left: 3px solid #f5b768; background: #46313a; }
+.result-score { color: #d7f8ee; font-size: 1.6rem; font-weight: bold; }
 .dev-badge { display: inline-block; padding: 3px 9px; border-radius: 4px; color: #1b1826; background: #f5b768; font-size: 0.75rem; font-weight: bold; }
 .dev-form { margin-top: 24px; padding-top: 14px; border-top: 1px dashed #7d93ad; }
 .dev-form button { padding: 8px; border: 1px solid #f5b768; border-radius: 6px; color: #f5b768; background: transparent; cursor: pointer; }

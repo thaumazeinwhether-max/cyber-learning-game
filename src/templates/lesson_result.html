@@ -1,0 +1,17 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ lesson.title }}・訓練結果{% endblock %}
+{% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}・訓練選択</a> / 訓練結果{% endblock %}
+{% block content %}
+  <section class="panel completion failed-completion">
+    <p class="eyebrow">TRAINING RESULT</p>
+    <h1>UNIT CLEAR FAILED</h1>
+    <p class="result-score">{{ result.correct_count }} / {{ result.total }} 正解</p>
+    <p>理解が不十分な項目があります。解説を確認して、UNIT全体にもう一度挑戦しましょう。</p>
+    <div class="completion-actions">
+      <form method="post" action="{{ url_for('learn.start_lesson', course_id=course_id, lesson_id=lesson.id) }}">
+        <button class="button" type="submit">もう一度挑戦</button>
+      </form>
+      <a class="button button-secondary" href="{{ url_for('learn.lesson_page', course_id=course_id, lesson_id=lesson.id) }}">教材を読み直す</a>
+    </div>
+  </section>
+{% endblock %}

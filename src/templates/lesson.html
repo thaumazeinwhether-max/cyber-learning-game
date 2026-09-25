@@ -7,6 +7,51 @@
     <h1>{{ lesson.title }}</h1>
     <p>{{ lesson.summary }}</p>
   </header>
+  {% if lesson.sections %}
+    <div class="lesson-intro-grid">
+      <section class="panel"><h2>学習目標</h2><p>{{ lesson.objective }}</p></section>
+      <section class="panel"><h2>なぜ学ぶのか / このUNITを学ぶ理由</h2><p>{{ lesson.why }}</p></section>
+    </div>
+    <aside class="panel chapter-connection"><h2>前のUNITとの接続</h2><p>{{ lesson.connection }}</p></aside>
+    <nav class="chapter-nav" aria-label="このUNITの目次">
+      <strong>このUNITの内容</strong>
+      <ol>{% for chapter_section in lesson.sections %}
+        <li><a href="#chapter-{{ loop.index }}">{{ chapter_section.heading }}</a></li>
+      {% endfor %}</ol>
+    </nav>
+    {% for chapter_section in lesson.sections %}
+      <section id="chapter-{{ loop.index }}" class="chapter-section" aria-labelledby="chapter-title-{{ loop.index }}">
+        <h2 id="chapter-title-{{ loop.index }}">{{ chapter_section.heading }}</h2>
+        {% for block in chapter_section.blocks %}
+          {% if block.type == "paragraph" %}
+            <p>{{ block.text }}</p>
+          {% elif block.type == "bullets" %}
+            <ul class="chapter-list">{% for item in block['items'] %}<li>{{ item }}</li>{% endfor %}</ul>
+          {% elif block.type == "table" %}
+            <div class="table-scroll"><table class="comparison-table">
+              <thead><tr>{% for column in block.columns %}<th scope="col">{{ column }}</th>{% endfor %}</tr></thead>
+              <tbody>{% for row in block.rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+            </table></div>
+          {% elif block.type == "code" %}
+            <figure class="chapter-code"><pre><code>{{ block.code }}</code></pre><figcaption>{{ block.caption }}</figcaption></figure>
+          {% elif block.type == "flow" %}
+            <ol class="concept-flow chapter-flow">{% for step in block.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+          {% elif block.type == "note" or block.type == "warning" %}
+            <aside class="chapter-callout {{ block.type }}"><strong>{{ "NOTE" if block.type == "note" else "WARNING" }} / {{ block.title }}</strong><p>{{ block.text }}</p></aside>
+          {% elif block.type == "key_points" %}
+            <aside class="chapter-callout key-points"><h3>KEY POINT / これだけ覚えよう</h3><ul>{% for item in block['items'] %}<li>{{ item }}</li>{% endfor %}</ul></aside>
+          {% endif %}
+        {% endfor %}
+      </section>
+    {% endfor %}
+  {% else %}
+  {% if lesson.objective %}
+    <div class="lesson-intro-grid">
+      <section class="panel"><h2>学習目標</h2><p>{{ lesson.objective }}</p></section>
+      <section class="panel"><h2>なぜ学ぶのか</h2><p>{{ lesson.why }}</p></section>
+    </div>
+    <section class="panel mechanism-card"><h2>仕組み</h2><p>{{ lesson.mechanism }}</p></section>
+  {% endif %}
   <section class="lesson-points" aria-label="学習内容">
     {% for point in lesson.points %}
       <article class="panel">
@@ -16,6 +61,14 @@
       </article>
     {% endfor %}
   </section>
+  {% if lesson.diagram %}
+    <section class="panel diagram-card" aria-label="流れの図解">
+      <h2>流れをつなげてみよう</h2>
+      <ol class="concept-flow">
+        {% for step in lesson.diagram %}<li>{{ step }}</li>{% endfor %}
+      </ol>
+    </section>
+  {% endif %}
   {% if lesson.code %}
     <section class="panel code-lesson">
       <h2>コード例</h2>
@@ -23,7 +76,9 @@
       <p>{{ lesson.code_explanation }}</p>
     </section>
   {% endif %}
+  {% if lesson.misconception %}<aside class="panel misconception"><h2>よくある勘違い</h2><p>{{ lesson.misconception }}</p></aside>{% endif %}
   <aside class="takeaway"><strong>これだけ覚えよう</strong><p>{{ lesson.takeaway }}</p></aside>
+  {% endif %}
   <form method="post" action="{{ url_for('learn.start_lesson', course_id=course_id, lesson_id=lesson.id) }}">
     <button class="button" type="submit">訓練開始{{ "（再挑戦）" if completed else "" }}</button>
   </form>

@@ -1,9 +1,14 @@
 """Learnフェーズの教材と問題。画面表示と進行処理から分けて管理する。"""
 
+from src.computer_os_data import COMPUTER_OS_COURSE
+
+
 COURSES = {
+    "computer_os": COMPUTER_OS_COURSE,
     "it": {
         "title": "IT基礎訓練",
         "description": "コンピュータ、ネットワーク、Webの基本を学ぶコース。",
+        "question_mode": "choice",
         "lessons": [
             {
                 "id": "computer",
@@ -53,13 +58,14 @@ COURSES = {
         ],
         "boss": [
             {"type": "true_false", "prompt": "RAMは電源を切っても内容を保持する。", "answer": "false", "explanation": "RAMの内容は電源を切ると消えます。"},
-            {"type": "term", "prompt": "ドメイン名とIPアドレスを対応付ける仕組みは？", "answer": "dns", "explanation": "DNSが名前とIPアドレスを対応付けます。"},
+            {"type": "term", "prompt": "ドメイン名とIPアドレスを対応付ける仕組みは？", "answer": "DNS", "explanation": "DNSが名前とIPアドレスを対応付けます。"},
             {"type": "true_false", "prompt": "ブラウザーはHTTPを使ってWebサーバーにページを要求できる。", "answer": "true", "explanation": "ブラウザーとWebサーバーはHTTPでやり取りします。"},
         ],
     },
     "python": {
         "title": "Python基礎訓練",
         "description": "変数、条件分岐、繰り返しをコードで学ぶコース。",
+        "question_mode": "code",
         "lessons": [
             {
                 "id": "variables",

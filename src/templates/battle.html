@@ -4,23 +4,36 @@
 {% block content %}
   <p class="eyebrow">OUTPUT BATTLE / {{ lesson.title }}</p>
   <h1>通常戦</h1>
-  <p>敵 {{ progress.question_index + 1 }} / {{ lesson.questions|length }}。直前の教材を思い出して答えよう。</p>
-  <p class="encounter-alert">{{ "THREAT ELIMINATED / 脅威を排除" if progress.enemy_defeated else "ENEMY DETECTED / 敵性プログラムを検知" }}</p>
-  <div class="enemy-card {{ 'defeated' if progress.enemy_defeated else 'enemy-arrival' }}">
+  <p>QUESTION {{ progress.question_index + 1 }} / {{ lesson.questions|length }}。直前の教材を思い出して答えよう。</p>
+  <p class="encounter-alert">{{ "THREAT ELIMINATED / 脅威を排除" if progress.question_correct else "ENEMY DETECTED / 敵性プログラムを検知" }}</p>
+  <div class="enemy-card {{ 'defeated' if progress.question_correct else 'enemy-arrival' }}">
     <span class="enemy-icon" aria-hidden="true">◆</span>
-    <div><strong>{{ "ENEMY DEFEATED / 訓練ドローン撃破" if progress.enemy_defeated else "訓練ドローン" }}</strong><p>ENEMY HP: {{ 0 if progress.enemy_defeated else 1 }} / 1</p></div>
+    <div><strong>{{ "ENEMY DEFEATED / 訓練ドローン撃破" if progress.question_correct else "訓練ドローン" }}</strong><p>ENEMY HP: {{ 0 if progress.question_correct else 1 }} / 1</p></div>
   </div>
-  {% if progress.enemy_defeated %}
-    <div class="panel success-panel"><p class="eyebrow">HIT / 攻撃成功</p><h2>敵を撃破！</h2><p>{{ question.explanation }}</p></div>
+  {% if progress.question_answered %}
+    <section class="panel {{ 'success-panel' if progress.question_correct else 'answer-failed' }}" aria-live="polite">
+      <p class="eyebrow">{{ "CORRECT / HIT / 攻撃成功" if progress.question_correct else "INCORRECT / ATTACK FAILED" }}</p>
+      <h2>{{ "ENEMY DEFEATED / 敵を撃破！" if progress.question_correct else "今回は不正解" }}</h2>
+      <h3>{{ question.prompt }}</h3>
+      {% if not progress.question_correct %}
+        <p>あなたの回答：</p>
+        {% if course.question_mode == "choice" %}<p><strong>{{ submitted_answer }}</strong></p>{% else %}<pre><code>{{ submitted_answer }}</code></pre>{% endif %}
+      {% endif %}
+      <p>正解：</p>
+      {% if course.question_mode == "choice" %}<p><strong>{{ correct_answer }}</strong></p>{% else %}<pre><code>{{ correct_answer }}</code></pre>{% endif %}
+      <h3>解説</h3><p>{{ question.explanation }}</p>
+      {% if not progress.question_correct and wrong_explanation %}<p class="answer-feedback">回答を見直すポイント：{{ wrong_explanation }}</p>{% endif %}
+      <p>今回の正解数：{{ progress.correct_count }} / {{ lesson.questions|length }}</p>
+    </section>
     <form method="post" action="{{ url_for('learn.next_enemy', course_id=course_id, lesson_id=lesson.id) }}">
-      <button class="button" type="submit">{{ "次の敵へ" if progress.question_index + 1 < lesson.questions|length else "訓練結果を見る" }}</button>
+      <button class="button" type="submit">{{ "次の問題へ" if progress.question_index + 1 < lesson.questions|length else "訓練結果を見る" }}</button>
     </form>
   {% else %}
     <section class="panel question-panel">
       <h2>{{ question.prompt }}</h2>
       <form method="post" action="{{ url_for('learn.answer_battle', course_id=course_id, lesson_id=lesson.id) }}">
         <input type="hidden" name="question_index" value="{{ progress.question_index }}">
-        {% if course_id == "it" %}
+        {% if course.question_mode == "choice" %}
           <fieldset class="choices"><legend>答えを1つ選ぶ</legend>
             {% for option in question.options %}
               <label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>

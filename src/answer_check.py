@@ -2,6 +2,8 @@
 
 import ast
 
+from src.learn_data import COURSES
+
 
 def same_python_code(submitted_code, expected_code):
     if not submitted_code or len(submitted_code) > 1000:
@@ -18,11 +20,16 @@ def same_python_code(submitted_code, expected_code):
 
 
 def is_correct(course_id, question, answer, corrected_code=""):
-    if course_id == "it":
+    if COURSES[course_id]["question_mode"] == "choice":
         if question.get("type") == "true_false":
             return answer == question["answer"]
         if question.get("type") == "term":
-            return answer.strip().casefold() == question["answer"]
+            accepted_answers = question.get("accepted_answers", [question["answer"]])
+            normalized_answer = "".join(answer.casefold().split())
+            return any(
+                normalized_answer == "".join(accepted.casefold().split())
+                for accepted in accepted_answers
+            )
         return answer == str(question["answer"])
 
     if question.get("type") == "debug":

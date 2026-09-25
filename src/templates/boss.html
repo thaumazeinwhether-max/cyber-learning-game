@@ -4,24 +4,45 @@
 {% block content %}
   <p class="eyebrow">FINAL BATTLE / {{ course.title }}</p>
   <h1>ボス戦</h1>
-  <p>正解するたびにHPが1減ります。あと{{ progress.boss_hp }}問です。</p>
+  <p>QUESTION {{ progress.boss_index + 1 }} / {{ max_hp }}。1問につき1回回答し、全問正解で撃破します。正解数 {{ progress.boss_correct_count }} / {{ max_hp }}。</p>
   <p class="encounter-alert boss-alert">BOSS DETECTED / 最終訓練開始</p>
   <div class="enemy-card boss-enemy enemy-arrival">
     <span class="enemy-icon" aria-hidden="true">✦</span>
-    <div class="boss-details"><span class="boss-label">BOSS</span><strong>訓練ボス</strong><p class="hp" aria-label="ボスHP {{ progress.boss_hp }} / {{ max_hp }}">BOSS HP: {{ "■" * progress.boss_hp }}{{ "□" * (max_hp - progress.boss_hp) }}</p><div class="hp-track" role="progressbar" aria-label="ボスHP" aria-valuemin="0" aria-valuemax="{{ max_hp }}" aria-valuenow="{{ progress.boss_hp }}"><span class="hp-fill" style="width: {{ progress.boss_hp / max_hp * 100 }}%"></span></div></div>
+    <div class="boss-details"><span class="boss-label">BOSS</span><strong>{{ course.boss_name|default('訓練ボス') }}</strong><p class="hp" aria-label="ボスHP {{ progress.boss_hp }} / {{ max_hp }}">BOSS HP: {{ "■" * progress.boss_hp }}{{ "□" * (max_hp - progress.boss_hp) }}</p><div class="hp-track" role="progressbar" aria-label="ボスHP" aria-valuemin="0" aria-valuemax="{{ max_hp }}" aria-valuenow="{{ progress.boss_hp }}"><span class="hp-fill" style="width: {{ progress.boss_hp / max_hp * 100 }}%"></span></div></div>
   </div>
   <section class="panel question-panel">
     <p class="eyebrow">問題 {{ progress.boss_index + 1 }} / {{ max_hp }}</p>
     <h2>{{ question.prompt }}</h2>
     {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
+    {% if progress.boss_answered %}
+      <div class="panel {{ 'success-panel' if progress.boss_correct else 'answer-failed' }}" aria-live="polite">
+        <p class="eyebrow">{{ "CORRECT / HIT" if progress.boss_correct else "INCORRECT / ATTACK FAILED" }}</p>
+        {% if not progress.boss_correct %}
+          <p>あなたの回答：<strong>{{ submitted_answer }}</strong></p>
+          {% if progress.boss_submitted_code %}<pre><code>{{ progress.boss_submitted_code }}</code></pre>{% endif %}
+        {% endif %}
+        <p>正解：<strong>{{ correct_answer }}</strong></p>
+        {% if course.question_mode == "code" and not question.valid %}<pre><code>{{ question.answer }}</code></pre>{% endif %}
+        <h3>解説</h3><p>{{ question.explanation }}</p>
+        {% if not progress.boss_correct and wrong_explanation %}<p class="answer-feedback">回答を見直すポイント：{{ wrong_explanation }}</p>{% endif %}
+        <p>今回の正解数：{{ progress.boss_correct_count }} / {{ max_hp }}</p>
+      </div>
+      <form method="post" action="{{ url_for('learn.next_boss_question', course_id=course_id) }}">
+        <button class="button" type="submit">{{ "次の問題へ" if progress.boss_index + 1 < max_hp else "BOSS結果を見る" }}</button>
+      </form>
+    {% else %}
     <form method="post" action="{{ url_for('learn.answer_boss', course_id=course_id) }}">
       <input type="hidden" name="question_index" value="{{ progress.boss_index }}">
-      {% if course_id == "it" and question.type == "true_false" %}
+      {% if course.question_mode == "choice" and question.type == "true_false" %}
         <fieldset class="choices"><legend>正しいか判断する</legend>
           <label><input type="radio" name="answer" value="true" required> ○ 正しい</label>
           <label><input type="radio" name="answer" value="false" required> × 間違っている</label>
         </fieldset>
-      {% elif course_id == "it" %}
+      {% elif course.question_mode == "choice" and question.options %}
+        <fieldset class="choices"><legend>答えを1つ選ぶ</legend>
+          {% for option in question.options %}<label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>{% endfor %}
+        </fieldset>
+      {% elif course.question_mode == "choice" %}
         <label for="answer">用語を入力</label>
         <input id="answer" name="answer" type="text" maxlength="100" required>
       {% else %}
@@ -39,6 +60,7 @@
         <input type="hidden" name="question_index" value="{{ progress.boss_index }}">
         <button type="submit" name="action" value="dev_skip">開発用：この問題を正解扱いにする</button>
       </form>
+    {% endif %}
     {% endif %}
   </section>
 {% endblock %}

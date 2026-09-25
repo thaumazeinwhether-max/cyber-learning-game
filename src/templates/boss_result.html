@@ -1,0 +1,19 @@
+{% extends "learn_base.html" %}
+{% block title %}{{ course.title }}・BOSS結果{% endblock %}
+{% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}・訓練選択</a> / BOSS結果{% endblock %}
+{% block content %}
+  <section class="panel completion failed-completion">
+    <p class="eyebrow">BOSS BATTLE RESULT</p>
+    <h1>BOSS BATTLE FAILED</h1>
+    <p class="result-score">{{ result.correct_count }} / {{ result.total }} 正解</p>
+    <p class="hp">{{ course.boss_name|default('BOSS') }} HP: {{ result.hp }} / {{ result.total }}</p>
+    <p>解説を確認して知識を整理し、もう一度すべての問題に挑戦しましょう。</p>
+    <div class="completion-actions">
+      <form method="post" action="{{ url_for('learn.start_boss', course_id=course_id) }}">
+        <button class="button" type="submit">BOSSに再挑戦</button>
+      </form>
+      <a class="button button-secondary" href="{{ url_for('learn.course_home', course_id=course_id) }}#lesson-list">教材を読み直す</a>
+      <a class="button button-secondary" href="{{ url_for('learn.course_home', course_id=course_id) }}">訓練選択へ戻る</a>
+    </div>
+  </section>
+{% endblock %}

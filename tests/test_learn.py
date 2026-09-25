@@ -109,30 +109,28 @@ def test_last_training_clear_unlocks_boss_and_offers_choice(client):
     assert start.location.endswith("/learn/it/boss")
 
 
-def test_it_battle_wrong_then_correct(client):
+def test_it_battle_wrong_then_next_question(client):
     client.post("/learn/it/computer/start")
     wrong = client.post(
         "/learn/it/computer/answer",
         data={"question_index": "0", "answer": "1"}, follow_redirects=True,
     )
     assert "不正解" in page_text(wrong)
-    assert "WARNING / ATTACK FAILED" in page_text(wrong)
+    assert "INCORRECT / ATTACK FAILED" in page_text(wrong)
     assert "ENEMY HP: 1 / 1" in page_text(wrong)
     assert "ENEMY DETECTED" in page_text(wrong)
+    assert "回答する" not in page_text(wrong)
 
-    correct = client.post(
+    repeat = client.post(
         "/learn/it/computer/answer",
         data={"question_index": "0", "answer": "0"}, follow_redirects=True,
     )
-    assert "敵を撃破" in page_text(correct)
-    assert "HIT / 攻撃成功" in page_text(correct)
-    assert "ENEMY DEFEATED" in page_text(correct)
-    assert "ENEMY HP: 0 / 1" in page_text(correct)
+    assert "INCORRECT" in page_text(repeat)
     next_battle = client.post("/learn/it/computer/next", follow_redirects=True)
-    assert "敵 2 / 2" in page_text(next_battle)
+    assert "QUESTION 2 / 2" in page_text(next_battle)
 
 
-def test_it_boss_loses_hp_and_course_completes(client):
+def test_it_boss_wrong_attempt_then_perfect_retry(client):
     finish_lessons(client, "it")
     assert "ボス戦開始" in page_text(client.get("/learn/it/"))
     client.post("/learn/it/boss/start")
@@ -143,21 +141,29 @@ def test_it_boss_loses_hp_and_course_completes(client):
         "/learn/it/boss/answer", data={"question_index": "0", "answer": "true"},
         follow_redirects=True,
     )
-    assert "不正解" in page_text(wrong)
+    assert "INCORRECT" in page_text(wrong)
     assert "BOSS HP: ■■■" in page_text(wrong)
-
-    first = client.post(
-        "/learn/it/boss/answer", data={"question_index": "0", "answer": "false"},
-        follow_redirects=True,
-    )
-    assert "BOSS HP: ■■□" in page_text(first)
+    assert "× 間違っている" in page_text(wrong)
+    assert "回答する" not in page_text(wrong)
+    client.post("/learn/it/boss/next")
     client.post("/learn/it/boss/answer", data={"question_index": "1", "answer": "DNS"})
-    complete = client.post(
-        "/learn/it/boss/answer", data={"question_index": "2", "answer": "true"},
-        follow_redirects=True,
-    )
+    client.post("/learn/it/boss/next")
+    client.post("/learn/it/boss/answer", data={"question_index": "2", "answer": "true"})
+    failed = client.post("/learn/it/boss/next", follow_redirects=True)
+    assert "BOSS BATTLE FAILED" in page_text(failed)
+    assert "2 / 3" in page_text(failed)
+    assert client.get("/learn/it/complete").status_code == 302
+
+    client.post("/learn/it/boss/start")
+    first = client.post("/learn/it/boss/answer", data={"question_index": "0", "answer": "false"}, follow_redirects=True)
+    assert "BOSS HP: ■■□" in page_text(first)
+    client.post("/learn/it/boss/next")
+    client.post("/learn/it/boss/answer", data={"question_index": "1", "answer": "DNS"})
+    client.post("/learn/it/boss/next")
+    client.post("/learn/it/boss/answer", data={"question_index": "2", "answer": "true"})
+    complete = client.post("/learn/it/boss/next", follow_redirects=True)
     assert "IT基礎訓練 修了" in page_text(complete)
-    assert "BOSS DEFEATED / COURSE COMPLETE" in page_text(complete)
+    assert "BOSS DEFEATED" in page_text(complete)
     assert "訓練選択へ戻る" in page_text(complete)
     assert "Learnトップへ戻る" in page_text(complete)
 
@@ -175,11 +181,8 @@ def test_python_lesson_and_code_battle(client):
     )
     assert "不正解" in page_text(wrong)
     assert "ENEMY HP: 1 / 1" in page_text(wrong)
-    correct = client.post(
-        "/learn/python/variables/answer",
-        data={"question_index": "0", "answer": "x=10"}, follow_redirects=True,
-    )
-    assert "敵を撃破" in page_text(correct)
+    assert "x = 10" in page_text(wrong)
+    assert "回答する" not in page_text(wrong)
 
 
 def test_python_quote_styles_and_no_execution(client):
@@ -205,7 +208,7 @@ def test_python_quote_styles_and_no_execution(client):
     assert not marker.exists()
 
 
-def test_python_boss_debugging(client):
+def test_python_boss_debugging_requires_perfect_retry(client):
     finish_lessons(client, "python")
     client.post("/learn/python/boss/start")
     wrong = client.post(
@@ -213,19 +216,33 @@ def test_python_boss_debugging(client):
         data={"question_index": "0", "answer": "incorrect", "corrected_code": "age = 20"},
         follow_redirects=True,
     )
-    assert "不正解" in page_text(wrong)
+    assert "INCORRECT" in page_text(wrong)
+    assert "if age &gt;= 18:" in page_text(wrong)
+    client.post("/learn/python/boss/next")
+    client.post("/learn/python/boss/answer", data={"question_index": "1", "answer": "correct"})
+    client.post("/learn/python/boss/next")
+    client.post(
+        "/learn/python/boss/answer",
+        data={"question_index": "2", "answer": "incorrect", "corrected_code": 'print("Hello")'},
+    )
+    failed = client.post("/learn/python/boss/next", follow_redirects=True)
+    assert "BOSS BATTLE FAILED" in page_text(failed)
+
+    client.post("/learn/python/boss/start")
     first = client.post(
         "/learn/python/boss/answer",
         data={"question_index": "0", "answer": "incorrect", "corrected_code": 'age = 20\nif age >= 18:\n    print("adult")'},
         follow_redirects=True,
     )
     assert "BOSS HP: ■■□" in page_text(first)
+    client.post("/learn/python/boss/next")
     client.post("/learn/python/boss/answer", data={"question_index": "1", "answer": "correct"})
-    complete = client.post(
+    client.post("/learn/python/boss/next")
+    client.post(
         "/learn/python/boss/answer",
         data={"question_index": "2", "answer": "incorrect", "corrected_code": 'print("Hello")'},
-        follow_redirects=True,
     )
+    complete = client.post("/learn/python/boss/next", follow_redirects=True)
     assert "Python基礎訓練 修了" in page_text(complete)
 
 
