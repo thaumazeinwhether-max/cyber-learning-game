@@ -11,10 +11,14 @@
   <div class="course-grid">
     {% for course_id, course in courses.items() %}
       <article class="panel">
-        <p class="eyebrow">{{ "正式カリキュラム 第1訓練" if course.curriculum_number else "初期版コース" }}</p>
+        <p class="eyebrow">{{ "正式カリキュラム 第" ~ course.curriculum_number ~ "訓練" if course.curriculum_number else "初期版コース" }}</p>
         <h3>{{ course.title }}</h3>
         <p>{{ course.description }}</p>
-        <a class="button" href="{{ url_for('learn.course_home', course_id=course_id) }}">コースを見る</a>
+        {% if unlocked_courses[course_id] %}
+          <a class="button" href="{{ url_for('learn.course_home', course_id=course_id) }}">コースを見る</a>
+        {% else %}
+          <span class="status locked" aria-label="前の正式訓練の修了後に解放">LOCKED / 前の訓練を修了すると解放</span>
+        {% endif %}
       </article>
     {% endfor %}
   </div>

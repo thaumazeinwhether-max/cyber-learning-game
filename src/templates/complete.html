@@ -10,9 +10,9 @@
     {% if course.curriculum_number == 1 %}<p class="eyebrow">COMPUTER & OS TRAINING COMPLETE</p>{% else %}<p class="eyebrow">COURSE COMPLETE</p>{% endif %}
     <h1>{{ course.title }} 修了</h1>
     <p>{{ course.lessons|length }}つの{{ "UNIT" if course.curriculum_number else "訓練" }}とボス戦をクリアしました。</p>
-    {% if course.curriculum_number == 1 %}<p class="next-course-note">次の正式訓練「Python基礎Ⅰ」は準備中です。</p>{% endif %}
+    {% if next_course %}<p class="next-course-note">次の正式訓練：{{ next_course.title }}</p>{% elif course.curriculum_number == 4 %}<p class="next-course-note">第5訓練「Python基礎Ⅱ」は準備中です。</p>{% endif %}
     <div class="completion-actions">
-      {% if course.curriculum_number == 1 %}<span class="button button-disabled" aria-disabled="true">次の訓練へ（準備中）</span>{% endif %}
+      {% if next_course %}<a class="button" href="{{ url_for('learn.course_home', course_id=next_course_id) }}">次の訓練へ</a>{% elif course.curriculum_number == 4 %}<span class="button button-disabled" aria-disabled="true">次の訓練へ（準備中）</span>{% endif %}
       <a class="button" href="{{ url_for('learn.course_home', course_id=course_id) }}">訓練選択へ戻る</a>
       <a class="button button-secondary" href="{{ url_for('learn.home') }}">Learnトップへ戻る</a>
     </div>

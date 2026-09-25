@@ -10,6 +10,9 @@ from src.learn_data import COURSES, get_lesson
 
 learn = Blueprint("learn", __name__, url_prefix="/learn")
 
+# 正式訓練だけを順番に解放する。初期版の体験コースは従来どおり利用可能。
+FORMAL_COURSE_IDS = ("computer_os", "python_basics_1", "network_basics", "web_http")
+
 
 def dev_mode():
     return os.environ.get("LEARN_DEV_SHORTCUT") == "1"
@@ -24,12 +27,24 @@ def get_course(course_id):
     course = COURSES.get(course_id)
     if course is None:
         abort(404)
+    if not course_unlocked(course_id):
+        abort(403)
     return course
+
+
+def course_unlocked(course_id):
+    if course_id not in FORMAL_COURSE_IDS:
+        return True
+    index = FORMAL_COURSE_IDS.index(course_id)
+    if index == 0:
+        return True
+    previous_id = FORMAL_COURSE_IDS[index - 1]
+    return session.get("learn_progress", {}).get(previous_id, {}).get("course_complete", False)
 
 
 def get_progress(course_id):
     all_progress = session.get("learn_progress", {})
-    return all_progress.get(course_id, {
+    defaults = {
         "completed_lessons": [],
         "active_lesson": None,
         "question_index": 0,
@@ -48,7 +63,9 @@ def get_progress(course_id):
         "boss_hp": len(COURSES[course_id]["boss"]),
         "boss_result": None,
         "course_complete": False,
-    })
+    }
+    # 以前の版のCookieに新しい項目がなくても、既定値を補って表示できる。
+    return {**defaults, **all_progress.get(course_id, {})}
 
 
 def save_progress(course_id, progress):
@@ -83,7 +100,9 @@ def get_visible_lesson(course_id, lesson_id):
 
 @learn.route("/")
 def home():
-    return render_template("learn_home.html", courses=COURSES)
+    unlocked_courses = {course_id: course_unlocked(course_id) for course_id in COURSES}
+    return render_template("learn_home.html", courses=COURSES,
+                           unlocked_courses=unlocked_courses)
 
 
 @learn.route("/<course_id>/")
@@ -129,7 +148,8 @@ def battle(course_id, lesson_id):
     if not unlocked or progress["active_lesson"] != lesson_id:
         return redirect(url_for("learn.lesson_page", course_id=course_id, lesson_id=lesson_id))
     question = lesson["questions"][progress["question_index"]]
-    if course["question_mode"] == "choice":
+    question_mode = question.get("mode", course["question_mode"])
+    if question_mode == "choice":
         correct_answer = question["options"][question["answer"]]
         selected_index = progress.get("submitted_answer", "")
         if selected_index.isdecimal() and int(selected_index) < len(question["options"]):
@@ -147,6 +167,7 @@ def battle(course_id, lesson_id):
         "battle.html", course=course, course_id=course_id, lesson=lesson,
         progress=progress, question=question, correct_answer=correct_answer,
         submitted_answer=submitted_answer, wrong_explanation=wrong_explanation,
+        question_mode=question_mode,
     )
 
 
@@ -375,4 +396,12 @@ def complete(course_id):
     progress = get_progress(course_id)
     if not progress["course_complete"]:
         return redirect(url_for("learn.course_home", course_id=course_id))
-    return render_template("complete.html", course=course, course_id=course_id)
+    next_course_id = None
+    next_course = None
+    if course_id in FORMAL_COURSE_IDS:
+        index = FORMAL_COURSE_IDS.index(course_id)
+        if index + 1 < len(FORMAL_COURSE_IDS):
+            next_course_id = FORMAL_COURSE_IDS[index + 1]
+            next_course = COURSES[next_course_id]
+    return render_template("complete.html", course=course, course_id=course_id,
+                           next_course=next_course, next_course_id=next_course_id)

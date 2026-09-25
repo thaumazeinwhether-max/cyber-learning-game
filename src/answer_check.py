@@ -19,8 +19,15 @@ def same_python_code(submitted_code, expected_code):
     return ast.dump(submitted_tree) == ast.dump(expected_tree)
 
 
+def matches_expected_code(submitted_code, question):
+    """問題に明記した安全な別解も、ASTだけで比較する。"""
+    expected_codes = [question["answer"]] + question.get("accepted_answers", [])
+    return any(same_python_code(submitted_code, code) for code in expected_codes)
+
+
 def is_correct(course_id, question, answer, corrected_code=""):
-    if COURSES[course_id]["question_mode"] == "choice":
+    question_mode = question.get("mode", COURSES[course_id]["question_mode"])
+    if question_mode == "choice":
         if question.get("type") == "true_false":
             return answer == question["answer"]
         if question.get("type") == "term":
@@ -35,8 +42,6 @@ def is_correct(course_id, question, answer, corrected_code=""):
     if question.get("type") == "debug":
         if question["valid"]:
             return answer == "correct"
-        return answer == "incorrect" and same_python_code(
-            corrected_code, question["answer"]
-        )
+        return answer == "incorrect" and matches_expected_code(corrected_code, question)
 
-    return same_python_code(answer, question["answer"])
+    return matches_expected_code(answer, question)

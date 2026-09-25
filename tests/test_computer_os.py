@@ -301,8 +301,8 @@ def test_boss_true_false_term_application_and_completion(client):
     assert "COMPUTER & OS TRAINING COMPLETE" in complete
     assert "コンピュータ・OS基礎訓練 修了" in complete
     assert "Python基礎Ⅰ" in complete
-    assert "準備中" in complete
-    assert 'aria-disabled="true"' in complete
+    assert "/learn/python_basics_1/" in complete
+    assert "次の訓練へ" in complete
     assert "訓練選択へ戻る" in complete
     with client.session_transaction() as browser_session:
         assert browser_session["learn_progress"][COURSE_ID]["course_complete"] is True

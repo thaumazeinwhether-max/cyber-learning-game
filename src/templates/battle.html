@@ -17,10 +17,10 @@
       <h3>{{ question.prompt }}</h3>
       {% if not progress.question_correct %}
         <p>あなたの回答：</p>
-        {% if course.question_mode == "choice" %}<p><strong>{{ submitted_answer }}</strong></p>{% else %}<pre><code>{{ submitted_answer }}</code></pre>{% endif %}
+        {% if question_mode == "choice" %}<p><strong>{{ submitted_answer }}</strong></p>{% else %}<pre><code>{{ submitted_answer }}</code></pre>{% endif %}
       {% endif %}
       <p>正解：</p>
-      {% if course.question_mode == "choice" %}<p><strong>{{ correct_answer }}</strong></p>{% else %}<pre><code>{{ correct_answer }}</code></pre>{% endif %}
+      {% if question_mode == "choice" %}<p><strong>{{ correct_answer }}</strong></p>{% else %}<pre><code>{{ correct_answer }}</code></pre>{% endif %}
       <h3>解説</h3><p>{{ question.explanation }}</p>
       {% if not progress.question_correct and wrong_explanation %}<p class="answer-feedback">回答を見直すポイント：{{ wrong_explanation }}</p>{% endif %}
       <p>今回の正解数：{{ progress.correct_count }} / {{ lesson.questions|length }}</p>
@@ -33,7 +33,7 @@
       <h2>{{ question.prompt }}</h2>
       <form method="post" action="{{ url_for('learn.answer_battle', course_id=course_id, lesson_id=lesson.id) }}">
         <input type="hidden" name="question_index" value="{{ progress.question_index }}">
-        {% if course.question_mode == "choice" %}
+        {% if question_mode == "choice" %}
           <fieldset class="choices"><legend>答えを1つ選ぶ</legend>
             {% for option in question.options %}
               <label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>

@@ -1,10 +1,16 @@
 """Learnフェーズの教材と問題。画面表示と進行処理から分けて管理する。"""
 
 from src.computer_os_data import COMPUTER_OS_COURSE
+from src.python_basics_1_data import PYTHON_BASICS_1_COURSE
+from src.network_basics_data import NETWORK_BASICS_COURSE
+from src.web_http_data import WEB_HTTP_COURSE
 
 
 COURSES = {
     "computer_os": COMPUTER_OS_COURSE,
+    "python_basics_1": PYTHON_BASICS_1_COURSE,
+    "network_basics": NETWORK_BASICS_COURSE,
+    "web_http": WEB_HTTP_COURSE,
     "it": {
         "title": "IT基礎訓練",
         "description": "コンピュータ、ネットワーク、Webの基本を学ぶコース。",
