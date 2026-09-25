@@ -37,9 +37,14 @@
         <input type="hidden" name="question_index" value="{{ progress.question_index }}">
         {% if question_mode == "choice" %}
           <fieldset class="choices"><legend>答えを1つ選ぶ</legend>
-            {% for option in question.options %}
-              <label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>
-            {% endfor %}
+            {% if question.type == "true_false" %}
+              <label><input type="radio" name="answer" value="true" required> ○ 正しい</label>
+              <label><input type="radio" name="answer" value="false" required> × 間違っている</label>
+            {% else %}
+              {% for option in question.options %}
+                <label><input type="radio" name="answer" value="{{ loop.index0 }}" required> {{ option }}</label>
+              {% endfor %}
+            {% endif %}
           </fieldset>
         {% else %}
           <label for="answer">コードを入力</label>

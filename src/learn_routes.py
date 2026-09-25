@@ -14,6 +14,8 @@ learn = Blueprint("learn", __name__, url_prefix="/learn")
 FORMAL_COURSE_IDS = (
     "computer_os", "python_basics_1", "network_basics", "web_http",
     "python_basics_2", "web_creation", "flask_basics",
+    "database_sql", "git_dev", "security_basics", "web_security",
+    "incident_response",
 )
 
 
@@ -104,8 +106,12 @@ def get_visible_lesson(course_id, lesson_id):
 @learn.route("/")
 def home():
     unlocked_courses = {course_id: course_unlocked(course_id) for course_id in COURSES}
+    learn_complete = session.get("learn_progress", {}).get(
+        "incident_response", {}
+    ).get("course_complete", False)
     return render_template("learn_home.html", courses=COURSES,
-                           unlocked_courses=unlocked_courses)
+                           unlocked_courses=unlocked_courses,
+                           learn_complete=learn_complete)
 
 
 @learn.route("/<course_id>/")
@@ -153,12 +159,17 @@ def battle(course_id, lesson_id):
     question = lesson["questions"][progress["question_index"]]
     question_mode = question.get("mode", course["question_mode"])
     if question_mode == "choice":
-        correct_answer = question["options"][question["answer"]]
         selected_index = progress.get("submitted_answer", "")
-        if selected_index.isdecimal() and int(selected_index) < len(question["options"]):
-            submitted_answer = question["options"][int(selected_index)]
+        if question.get("type") == "true_false":
+            labels = {"true": "○ 正しい", "false": "× 間違っている"}
+            correct_answer = labels[question["answer"]]
+            submitted_answer = labels.get(selected_index, "未選択")
         else:
-            submitted_answer = "未選択"
+            correct_answer = question["options"][question["answer"]]
+            if selected_index.isdecimal() and int(selected_index) < len(question["options"]):
+                submitted_answer = question["options"][int(selected_index)]
+            else:
+                submitted_answer = "未選択"
         wrong_explanation = question.get("wrong_explanations", {}).get(
             selected_index, question.get("hint", "")
         )

@@ -7,6 +7,11 @@ from src.web_http_data import WEB_HTTP_COURSE
 from src.python_basics_2_data import PYTHON_BASICS_2_COURSE
 from src.web_creation_data import WEB_CREATION_COURSE
 from src.flask_basics_data import FLASK_BASICS_COURSE
+from src.database_sql_data import DATABASE_SQL_COURSE
+from src.git_dev_data import GIT_DEV_COURSE
+from src.security_basics_data import SECURITY_BASICS_COURSE
+from src.web_security_data import WEB_SECURITY_COURSE
+from src.incident_response_data import INCIDENT_RESPONSE_COURSE
 
 
 COURSES = {
@@ -17,6 +22,11 @@ COURSES = {
     "python_basics_2": PYTHON_BASICS_2_COURSE,
     "web_creation": WEB_CREATION_COURSE,
     "flask_basics": FLASK_BASICS_COURSE,
+    "database_sql": DATABASE_SQL_COURSE,
+    "git_dev": GIT_DEV_COURSE,
+    "security_basics": SECURITY_BASICS_COURSE,
+    "web_security": WEB_SECURITY_COURSE,
+    "incident_response": INCIDENT_RESPONSE_COURSE,
     "it": {
         "title": "IT基礎訓練",
         "description": "コンピュータ、ネットワーク、Webの基本を学ぶコース。",

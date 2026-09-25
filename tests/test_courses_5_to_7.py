@@ -276,7 +276,7 @@ def test_boss_one_wrong_keeps_course_locked(client, course_id):
         assert not browser_session["learn_progress"][course_id]["course_complete"]
 
 
-def test_dev_completes_five_six_seven_and_eight_is_placeholder(client, monkeypatch):
+def test_dev_completes_five_six_seven_and_unlocks_eight(client, monkeypatch):
     monkeypatch.setenv("LEARN_DEV_SHORTCUT", "1")
     unlock_previous(client, "python_basics_2")
     for course_id in NEW_IDS:
@@ -287,9 +287,9 @@ def test_dev_completes_five_six_seven_and_eight_is_placeholder(client, monkeypat
             assert browser_session["learn_progress"][course_id]["course_complete"]
     page = client.get("/learn/flask_basics/complete").get_data(as_text=True)
     assert "データベース・SQL基礎" in page
-    assert "準備中" in page
+    assert "/learn/database_sql/" in page
     assert client.get("/learn/flask_basics/").status_code == 200
-    assert client.get("/learn/database_sql/").status_code == 404
+    assert client.get("/learn/database_sql/").status_code == 200
 
 
 def test_one_browser_can_finish_all_seven_courses(client, monkeypatch):

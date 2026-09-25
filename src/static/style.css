@@ -203,6 +203,7 @@ textarea, input[type="text"] {
 .completion-mark { display: grid; place-items: center; width: 72px; height: 72px; margin: 20px auto; border: 2px solid #79d9c5; border-radius: 50%; color: #79d9c5; font-size: 2rem; }
 .course-completion { border: 2px solid #f5b768; background: #302b3c; }
 .course-completion .completion-mark { border-color: #f5b768; color: #f5b768; }
+.completion-phase-note { margin: 18px 0; padding: 14px 18px; border: 1px solid #f5b768; border-radius: 8px; color: #ffdcaa; background: #3b2b31; font-weight: bold; letter-spacing: 0.06em; }
 .completion-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; }
 .completion-actions form { margin: 0; }
 .completion-actions .button { margin-top: 0; }
