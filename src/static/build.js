@@ -155,7 +155,8 @@ byId("save").addEventListener("click", async () => {
   try { await save(); } catch (error) { message(error.message, true); }
   finally { setBusy(false); }
 });
-byId("run").addEventListener("click", () => run(byId("preview-path").value));
+// 明示的なRUNはGET /から開始する。iframe内の移動は下のmessage処理で引き継ぐ。
+byId("run").addEventListener("click", () => run());
 window.addEventListener("message", event => {
   if (event.source !== preview.contentWindow || event.origin !== "null") return;
   const data = event.data;

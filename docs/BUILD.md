@@ -6,6 +6,10 @@
 コード、プレビュー、開発ナビゲーターを同じ画面で表示する。
 アプリ名・HTML・CSS・Python・JavaScript・SQL等を自分で編集し、SAVEで保存する。
 RUNは未保存の変更を保存してからプレビューを更新する。別ファイルを選んでも編集中の内容は保持する。
+RUNボタンは毎回 `GET /` から開始し、前回のプレビューのパスやPOSTデータを引き継がない。
+HTML/CSSモードでは選択中のHTML（その他のファイルを編集中なら `templates/index.html`）を表示する。
+パス欄は直近のリクエスト先を表示する読取専用欄。別のRouteにはプレビュー内のリンク・フォームから移動する。
+SAVEだけではプレビューを移動・再実行しない。RUNでもSession・DB・プロジェクト・チャットは初期化しない。
 新規プロジェクトと新規ファイルを作成できる。初期版は1ブラウザーにつき10プロジェクト、
 1プロジェクト30ファイル・合計500KB、1ファイル100KBまで。
 
@@ -31,7 +35,7 @@ JavaScriptのファイルも編集・保存できるが、初期版では実行�
 ### 任意設定のFlaskモード
 
 Linuxコンテナー対応のDockerが利用でき、専用イメージを作成した場合だけ有効。
-この開発環境にはDockerが存在しなかったため、**実コンテナーでの実行確認は未実施**。
+初期実装時はDocker未導入だったが、現在は下記のRUN回帰確認を実コンテナーでも実施済み。
 ホストで利用者のPythonを直接実行する代替処理はない。
 
 Docker Desktop等を利用者自身で用意した後、リポジトリのルートで実行する。
@@ -42,6 +46,9 @@ docker build -t cyber-build-runtime:1 ./build_runtime
 $env:BUILD_DOCKER_ENABLED = "1"
 python -m src.app
 ```
+
+ブラウザー側RUN操作の回帰テストはNode.jsの標準機能を使用するため、全pytest実行には
+`node` がPATH上に必要（npmパッケージの追加は不要）。
 
 Buildの実行モードで「Flask」を選びRUNする。`app.py`の`app`をFlaskアプリとして読み込み、
 Flaskのテストクライアントで実際のRequest / Responseを処理する。
@@ -152,7 +159,16 @@ Dockerを設定した環境では、Flaskへ切り替えてフォーム送信、
 `node --check src/static/build.js`、`git diff --check`も成功。
 実ブラウザーの1280×720で3領域を同時表示し、HTML/CSS編集、保存、RUN、ファイル追加・切替、
 チャット、プロジェクト追加・切替、再読み込み、アプリ再起動後の復元を確認した。
-未設定のFlask処理を要求した場合は説明を表示する。実Docker実行と外部生成AI接続は未検証・未設定。
+未設定のFlask処理を要求した場合は説明を表示する。外部生成AI接続は未検証・未設定。
+
+RUNのURL初期化修正時の確認結果：全214 pytest成功（既存208件＋回帰6件）。
+`tests/build_run_checks.cjs`で実際の`build.js`を読み込み、RUN・保存・iframeメッセージの
+イベント処理を検証する。固定FlaskテストアプリではGETリンク、POST→Redirect、Session・DB・保存状態の継続も確認する。
+`node --check src/static/build.js`、`node --check tests/build_run_checks.cjs`、`git diff --check`も成功。
+本体とは別の検証用保存領域と実Dockerを使い、ブラウザーでPOST専用`/count`→RUN→`GET /`、
+旧ルートのない別アプリへの変更→RUN、GETリンク、POST→Redirect、SAVEのみで表示維持、HTML/CSSを確認した。
+再RUN・コード変更後もSession値3とSQLiteの3行が残ることを確認した。
+最初のDocker実行は既存の10秒制限に達したが、再実行以降は成功。隔離・実行制限は変更していない。
 
 隔離方式の確認に参照した一次資料：
 [Dockerの実行制限](https://docs.docker.com/engine/containers/run/)、

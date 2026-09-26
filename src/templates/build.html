@@ -53,7 +53,7 @@
         <div class="preview-controls">
           <label class="sr-only" for="run-mode">実行モード</label>
           <select id="run-mode"><option value="html">HTML / CSS</option><option value="flask" {% if not initial.runtime.available %}disabled{% endif %}>Flask{% if not initial.runtime.available %}（未設定）{% endif %}</option></select>
-          <label class="sr-only" for="preview-path">プレビューのパス</label><input id="preview-path" value="/" aria-label="プレビューのパス">
+          <label class="sr-only" for="preview-path">プレビューのパス</label><input id="preview-path" value="/" aria-label="プレビューのパス" readonly title="直近のリクエスト先。RUNは / から開始します。">
         </div>
         <p class="preview-limit">保護プレビュー：外部通信・利用者のJS・画像は無効。HTMLモードではPython / Jinjaも実行しません。</p>
         <iframe id="preview" title="作成中のWebアプリ" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer"></iframe>

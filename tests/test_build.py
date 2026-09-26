@@ -4,6 +4,7 @@ import base64
 import io
 import json
 import shutil
+import subprocess
 import uuid
 from pathlib import Path
 
@@ -13,6 +14,15 @@ from src.app import create_app
 from src.build_preview import local_path, make_preview
 from src.build_runtime import container_command, validate_runtime_result
 from src.build_store import BuildStore
+
+
+@pytest.mark.parametrize("scenario", ["post_then_run", "changed_routes", "navigation", "save_only", "html_mode"])
+def test_run_button_and_preview_navigation(scenario):
+    node = shutil.which("node")
+    assert node, "Buildのブラウザー側回帰テストにはNode.jsが必要です。"
+    result = subprocess.run([node, str(Path(__file__).with_name("build_run_checks.cjs")), scenario],
+                            stdin=subprocess.DEVNULL, capture_output=True, text=True, encoding="utf-8", timeout=15)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 @pytest.fixture
@@ -389,3 +399,77 @@ def test_worker_http_form_session_and_database_with_trusted_fixture(workspace, m
     assert result["status"] == 200
     assert "session=" in result["state"]["cookie"]
     assert base64.b64decode(result["state"]["database"]) == b"fixture database"
+
+
+def test_preview_navigation_redirect_and_rerun_preserve_project_state(setup, workspace, monkeypatch):
+    # 入力コードは実行しない。固定Flaskアプリで実際のRequest・Session・SQLiteを確認する。
+    import sqlite3
+    from flask import Flask, redirect, request, session
+    from build_runtime import runner
+
+    app, client, headers, owner, project = setup
+    fixture_app = Flask(__name__)
+    fixture_app.secret_key = "fixture-only"
+
+    @fixture_app.get("/")
+    def home():
+        with sqlite3.connect(workspace / "data" / "app.sqlite3") as db:
+            db.execute("CREATE TABLE IF NOT EXISTS notes (body TEXT)")
+            rows = db.execute("SELECT body FROM notes").fetchall()
+        return f'<p>session={session.get("count", 0)}; rows={rows}</p><a href="/detail">Detail</a>'
+
+    @fixture_app.get("/detail")
+    def detail():
+        return '<form action="/save" method="post"><input name="body"><button>Save</button></form>'
+
+    @fixture_app.post("/save")
+    def submit():
+        session["count"] = session.get("count", 0) + 1
+        with sqlite3.connect(workspace / "data" / "app.sqlite3") as db:
+            db.execute("INSERT INTO notes VALUES (?)", (request.form["body"],))
+        return redirect("/")
+
+    monkeypatch.setattr("src.build_routes.capabilities", lambda: {"available": True})
+    monkeypatch.setattr(runner.runpy, "run_path", lambda *args, **kwargs: {"app": fixture_app})
+    for flag in ("O_NOFOLLOW", "O_NONBLOCK"):
+        if not hasattr(runner.os, flag):
+            monkeypatch.setattr(runner.os, flag, 0, raising=False)
+
+    class TrustedRuntime:
+        def run(self, saved, path, method, data):
+            bundle = {"files": saved["files"], "secret": saved["runtime_secret"],
+                      "state": saved["runtime_state"], "path": path, "method": method, "data": data}
+            output = io.StringIO()
+            with monkeypatch.context() as worker:
+                worker.setattr(runner.sys, "stdin", io.TextIOWrapper(io.BytesIO(json.dumps(bundle).encode())))
+                worker.setattr(runner.sys, "stdout", output)
+                worker.setattr(runner.sys, "path", list(runner.sys.path))
+                worker.setenv("BUILD_APP_SECRET", "fixture-only")
+                runner.main(workspace)
+            return json.loads(output.getvalue())
+
+    app.config["BUILD_RUNTIME"] = TrustedRuntime()
+    assert run(client, headers, project, mode="flask").json["status"] == 200
+    detail_response = run(client, headers, project, mode="flask", path="/detail").json
+    assert 'data-build-path="/save"' in detail_response["document"]
+    response = run(client, headers, project, mode="flask", path="/save", method="POST", data={"body": "kept"}).json
+    assert response["status"] == 200
+    assert "POST /save -> 302" in response["logs"]
+    assert "GET / -> 200" in response["logs"]
+    assert "session=1" in response["document"] and "kept" in response["document"]
+
+    store = BuildStore(app.instance_path)
+    before = store.get(owner, project["id"])
+    client.post(f'/build/projects/{project["id"]}/chat', headers=headers,
+                json={"question": "Route", "active_file": "app.py"})
+    # コード保存を挟んでも、RUNは同じプロジェクトのSession・DBを使う。
+    project["files"]["app.py"] = "replacement code (never executed in this test)"
+    project = save(client, headers, project).json["project"]
+    response = run(client, headers, project, mode="flask", path="/", method="GET").json
+    assert response["status"] == 200
+    assert "session=1" in response["document"] and "kept" in response["document"]
+    after = store.get(owner, project["id"])
+    assert after["runtime_state"] == before["runtime_state"]
+    assert after["runtime_secret"] == before["runtime_secret"]
+    assert client.get(f'/build/projects/{project["id"]}').json["project"] == project
+    assert len(project["chat"]) == 2

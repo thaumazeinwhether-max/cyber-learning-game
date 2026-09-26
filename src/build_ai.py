@@ -26,7 +26,7 @@ class LocalGuide:
         if any(word in text for word in ("route", "ルート", ".py", "flask")):
             return ("URLとPythonの関数を結ぶのがRouteです。まず、どのURLで何を表示したいか決めましょう。\n"
                     '小さな例:\n@app.route("/about")\ndef about():\n    return "このアプリについて"\n'
-                    "app.pyへ追加し、Flaskモードのパス欄を/aboutにして実行します。Learn第7訓練のRouteを使っています。\n"
+                    'app.pyへ追加し、トップ画面に <a href="/about">紹介</a> を置きます。FlaskモードでRUN後、そのリンクから移動します。Learn第7訓練のRouteを使っています。\n'
                     "Flask実行環境が未設定の場合はコードを保存できますが、Pythonは実行されません。")
         if ".css" in text or any(word in text for word in ("色", "余白", "レイアウト")):
             return ("見た目はHTMLのclassとCSSのセレクタを対応させて調整します。\n"
