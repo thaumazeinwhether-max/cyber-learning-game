@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Build 開発ラボ | Cyber Learning Game</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='build.css') }}">
+  <script src="{{ url_for('static', filename='build.js') }}" defer></script>
+</head>
+<body class="hud-interface build-interface">
+  <main class="build-shell">
+    <header class="build-header">
+      <div>
+        <nav aria-label="現在地"><a href="{{ url_for('index') }}">ホーム</a> <span>/ PHASE 02</span></nav>
+        <h1>BUILD <span>開発ラボ</span></h1>
+      </div>
+      <div class="project-controls">
+        <label for="projects">PROJECT</label>
+        <select id="projects" aria-label="プロジェクトを選択"></select>
+        <button id="new-project" class="button button-secondary">新規</button>
+      </div>
+      <div class="toolbar">
+        <span id="save-state" role="status">保存済み</span>
+        <button id="save" class="button button-secondary">SAVE 保存</button>
+        <button id="run" class="button">RUN 実行</button>
+      </div>
+    </header>
+    <div class="build-notice">
+      <span class="system-dot" aria-hidden="true"></span>
+      <span>コードを書く → 保存してRUN → 結果を見て改善</span>
+      <span id="runtime-status">{{ initial.runtime.message }}</span>
+    </div>
+    <p id="workspace-message" role="status" class="workspace-message">HTMLの見出しを変えて、RUNを押してみましょう。</p>
+    <div class="build-workspace">
+      <section class="panel editor-panel" aria-labelledby="editor-title">
+        <div class="panel-heading"><h2 id="editor-title">01 / CODE</h2><span id="language">HTML</span></div>
+        <div class="project-name-row"><label for="project-name">アプリ名</label><input id="project-name" maxlength="80"></div>
+        <div class="editor-workspace">
+          <aside class="files-pane" aria-label="ファイル一覧">
+            <div id="files" role="group" aria-label="編集するファイル"></div>
+            <button id="add-file" class="file-add">＋ ファイル</button>
+          </aside>
+          <div class="source-pane">
+            <label id="file-label" for="code-editor"></label>
+            <textarea id="code-editor" aria-label="コードエディタ" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea>
+            <div class="editor-footer"><span id="cursor-position">Ln 1, Col 1</span><span>UTF-8 / Tab: 4 spaces</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="panel preview-panel" aria-labelledby="preview-title">
+        <div class="panel-heading"><h2 id="preview-title">02 / PREVIEW</h2><span id="response-status">READY</span></div>
+        <div class="preview-controls">
+          <label class="sr-only" for="run-mode">実行モード</label>
+          <select id="run-mode"><option value="html">HTML / CSS</option><option value="flask" {% if not initial.runtime.available %}disabled{% endif %}>Flask{% if not initial.runtime.available %}（未設定）{% endif %}</option></select>
+          <label class="sr-only" for="preview-path">プレビューのパス</label><input id="preview-path" value="/" aria-label="プレビューのパス">
+        </div>
+        <p class="preview-limit">保護プレビュー：外部通信・利用者のJS・画像は無効。HTMLモードではPython / Jinjaも実行しません。</p>
+        <iframe id="preview" title="作成中のWebアプリ" sandbox="allow-scripts allow-forms" referrerpolicy="no-referrer"></iframe>
+        <details class="run-console" open><summary>実行ログ</summary><pre id="run-log">RUNでプレビューを更新します。</pre></details>
+      </section>
+      <aside class="panel ai-panel" aria-labelledby="ai-title">
+        <div class="panel-heading"><h2 id="ai-title">03 / NAVIGATOR</h2><span class="system-dot" aria-hidden="true"></span></div>
+        <div class="core-display" aria-label="円形のホログラフィックAIコア">
+          <div class="ai-core" aria-hidden="true"><i></i><b></b><span>◇</span></div>
+          <strong>{{ ai_label }}</strong><small>開発ナビゲーター / 仮ラベル</small>
+        </div>
+        <p id="ai-mode" class="ai-mode">ローカルガイド（生成AI未接続）</p>
+        <section class="advice-box"><h3>次の一歩</h3><p id="advice">現在のファイルに合ったヒントを表示します。</p></section>
+        <div id="chat-history" class="chat-history" role="log" aria-label="開発相談の履歴" aria-live="polite"></div>
+        <form id="chat-form" class="chat-form">
+          <label class="sr-only" for="chat-question">開発について質問</label>
+          <textarea id="chat-question" rows="2" maxlength="1500" placeholder="フォームの入力を受け取るには？" required></textarea>
+          <button id="send-chat" class="button button-secondary" type="submit">質問する</button>
+        </form>
+      </aside>
+    </div>
+  </main>
+  <dialog id="name-dialog">
+    <form id="name-form"><h2 id="dialog-title">新規ファイル</h2><label for="new-name" id="dialog-label">ファイル名</label><input id="new-name" required maxlength="120"><p id="dialog-error" role="alert"></p><div class="dialog-actions"><button type="button" id="cancel-dialog" class="button button-secondary">キャンセル</button><button class="button" type="submit">作成</button></div></form>
+  </dialog>
+  <script id="build-initial" type="application/json">{{ initial|tojson }}</script>
+</body>
+</html>

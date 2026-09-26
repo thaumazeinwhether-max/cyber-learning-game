@@ -74,7 +74,18 @@ Learnフェーズで身につけた知識を使い、自分の仮想システム
 
 ## Status
 
-正式カリキュラムの第1〜12訓練を実装済みです。Build、Attack & Defendは未実装です。
+正式カリキュラムの第1〜12訓練と、Build開発ラボの初期版を実装済みです。Attack & Defendは準備中です。
+
+## Buildフェーズの使い方
+
+トップの「開発ラボへ」から、複数ファイルのコード編集、SAVE、RUN、同じ画面でのプレビュー、開発相談ができます。
+標準ではHTML/CSSを描画します。Python・Jinja・SQL・利用者のJavaScriptは実行せず、編集・保存できます。
+Flaskの実行には別途DockerのLinuxコンテナーと専用イメージが必要で、未設定時は明示して無効にします。
+この開発環境ではDockerがなく、実コンテナーでの確認は未実施です。
+
+コード・作業位置・チャットは `instance/build.sqlite3` に保存し、同じブラウザーで再起動後も再開できます。
+AI COREは仮ラベルです。生成AI未接続時は、Learnと現在の作業をつなぐローカルガイドが応答します。
+実行範囲、安全上の制約、Docker設定、保存の仕組みは [docs/BUILD.md](docs/BUILD.md) を参照してください。
 
 ## Learnフェーズの遊び方
 
@@ -104,7 +115,7 @@ IT通常戦は4択、ITボス戦は正誤判断・用語記述・応用問題で
 
 通常戦は1 UNITにつき1体の訓練ドローン、BOSS戦は大型ロボットを表示します。敵HPの初期値は問題数で、正解すると1減り、不正解では減りません。攻撃・被弾・撃破はCSSによる短い表示演出です。採点と満点のクリア条件はサーバー側で判定します。動きが苦手な場合は、OSやブラウザーの「動きを減らす」設定でアニメーションを無効にできます。
 
-アプリトップとLearnの全画面は、暗い訓練端末をイメージした共通HUD UIです。背景のグリッド、シアンの境界線、教材カードや戦闘表示はCSSで描いています。BuildとAttack & Defendはトップ画面に準備中のフェーズとして表示され、機能はまだありません。見た目は `src/static/style.css` の `hud-interface` 共通スタイルで調整できます。
+アプリトップ・Learn・Buildは、暗い訓練端末をイメージした共通HUD UIです。背景のグリッド、シアンの境界線、教材カードや戦闘表示はCSSで描いています。Attack & Defendはトップ画面で準備中と表示します。共通テーマは `src/static/style.css`、Build専用の配置は `src/static/build.css` で調整できます。
 
 BOSS撃破後も訓練選択または修了画面から「BOSSに再挑戦」できます。再挑戦は第1問・満タンHPから始まり、今回失敗しても過去の訓練修了と次訓練の解放は維持されます。第12訓練の再挑戦でも「LEARN PHASE COMPLETE」は取り消されません。
 
@@ -147,6 +158,7 @@ python -m src.app
 * `docs/PROJECT_BRIEF.md`
 * `docs/LEARN_CURRICULUM.md`
 * `docs/MVP_V0_1.md`
+* `docs/BUILD.md`
 * `AGENTS.md`
 
 ## License
