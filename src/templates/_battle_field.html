@@ -1,0 +1,33 @@
+{# 通常戦とBOSS戦で共通の敵表示。HPはサーバーが保存した正解数から渡す。 #}
+<section class="battlefield {{ 'boss-field' if enemy_kind == 'boss' else 'drone-field' }} {{ 'is-hit' if battle_answered and battle_correct else 'is-miss' if battle_answered else 'is-entering' if not battle_finished else '' }} {{ 'is-defeated' if enemy_hp == 0 else 'is-failed' if battle_finished else '' }}" aria-label="バトルフィールド">
+  <div class="battlefield-heading">
+    <span class="battle-kicker">{{ 'BOSS BATTLE' if enemy_kind == 'boss' else 'DRONE BATTLE' }}</span>
+    <strong>{{ enemy_name }}</strong>
+    <span class="enemy-type">{{ '大型ロボット' if enemy_kind == 'boss' else '訓練ドローン' }}</span>
+  </div>
+  <div class="battle-hp" aria-label="{{ 'BOSS' if enemy_kind == 'boss' else 'ドローン' }} HP {{ enemy_hp }} / {{ enemy_max_hp }}">
+    <p class="hp-numbers"><span>{{ 'BOSS HP' if enemy_kind == 'boss' else 'DRONE HP' }}</span> <strong>{{ enemy_hp }} / {{ enemy_max_hp }}</strong></p>
+    <div class="hp-track" role="progressbar" aria-label="敵HP" aria-valuemin="0" aria-valuemax="{{ enemy_max_hp }}" aria-valuenow="{{ enemy_hp }}">
+      <span class="hp-fill" style="--hp-before: {{ ((enemy_hp + 1 if battle_answered and battle_correct else enemy_hp) / enemy_max_hp * 100)|round(2) }}%; --hp-now: {{ (enemy_hp / enemy_max_hp * 100)|round(2) }}%"></span>
+    </div>
+    {% if enemy_kind == 'boss' %}<p class="hp-symbols" aria-hidden="true">BOSS HP: {{ '■' * enemy_hp }}{{ '□' * (enemy_max_hp - enemy_hp) }}</p>{% endif %}
+  </div>
+  <div class="enemy-visual" aria-hidden="true">
+    {% if enemy_kind == 'boss' %}
+      <div class="robot-art"><span class="robot-antenna"></span><span class="robot-head"><i></i><i></i></span><span class="robot-torso"><i></i></span><span class="robot-arm left"></span><span class="robot-arm right"></span><span class="robot-leg left"></span><span class="robot-leg right"></span></div>
+    {% else %}
+      <div class="drone-art"><span class="drone-rotor left"></span><span class="drone-rotor right"></span><span class="drone-wing left"></span><span class="drone-wing right"></span><span class="drone-body"><i></i></span></div>
+    {% endif %}
+  </div>
+  <span class="battle-shot player-shot" aria-hidden="true"></span>
+  <span class="battle-shot enemy-shot" aria-hidden="true"></span>
+  {% if battle_finished %}
+    <p class="battle-callout" role="status">{{ 'BOSS DEFEATED' if enemy_kind == 'boss' and enemy_hp == 0 else 'ENEMY DEFEATED' if enemy_hp == 0 else 'BOSS BATTLE FAILED' if enemy_kind == 'boss' else 'BATTLE FAILED' }}</p>
+  {% elif battle_answered %}
+    <p class="battle-callout" role="status">{% if battle_correct %}{{ 'BOSS DEFEATED' if enemy_hp == 0 and enemy_kind == 'boss' else 'ENEMY DEFEATED' if enemy_hp == 0 else 'HIT / 敵に命中' }}{% else %}INCOMING FIRE / 敵の攻撃{% endif %}</p>
+  {% elif enemy_kind == 'boss' %}
+    <p class="battle-callout">BOSS DETECTED / 最終訓練開始</p>
+  {% else %}
+    <p class="battle-callout">ENEMY DETECTED / 敵性プログラムを検知</p>
+  {% endif %}
+</section>

@@ -129,7 +129,7 @@ def test_unit_battle_wrong_shows_answer_and_cannot_retry_same_question(client):
         data={"question_index": "0", "answer": "1"}, follow_redirects=True,
     )
     assert "ATTACK FAILED" in page_text(wrong)
-    assert "ENEMY HP: 1 / 1" in page_text(wrong)
+    assert 'aria-label="ドローン HP 6 / 6"' in page_text(wrong)
     assert COURSE["lessons"][0]["questions"][0]["wrong_explanations"]["1"] in page_text(wrong)
     assert COURSE["lessons"][0]["questions"][0]["explanation"] in page_text(wrong)
     assert "あなたの回答" in page_text(wrong)
@@ -143,7 +143,7 @@ def test_unit_battle_wrong_shows_answer_and_cannot_retry_same_question(client):
         data={"question_index": "0", "answer": "0"}, follow_redirects=True,
     )
     assert "INCORRECT" in page_text(repeat)
-    assert "ENEMY HP: 1 / 1" in page_text(repeat)
+    assert 'aria-label="ドローン HP 6 / 6"' in page_text(repeat)
     next_page = client.post(f"/learn/{COURSE_ID}/hardware/next", follow_redirects=True)
     assert "QUESTION 2 / 6" in page_text(next_page)
     for index, question in enumerate(COURSE["lessons"][0]["questions"][1:], start=1):
@@ -156,6 +156,7 @@ def test_unit_battle_wrong_shows_answer_and_cannot_retry_same_question(client):
     result_page = page_text(client.get(result.location))
     assert "UNIT CLEAR FAILED" in result_page
     assert "5 / 6" in result_page
+    assert "DRONE HP 1 / 6" in result_page
     assert "もう一度挑戦" in result_page
     assert "教材を読み直す" in result_page
     assert client.get(f"/learn/{COURSE_ID}/os/").status_code == 302
@@ -169,7 +170,9 @@ def test_correct_answer_shows_explanation_and_scores_once(client):
     )
     page = page_text(first)
     assert "CORRECT / HIT" in page
-    assert "ENEMY DEFEATED" in page
+    assert "HIT / ドローンに命中" in page
+    assert 'aria-label="ドローン HP 5 / 6"' in page
+    assert "ENEMY DEFEATED" not in page
     assert "CPUが命令を実行" in page
     assert "今回の正解数：1 / 6" in page
     assert "次の問題へ" in page

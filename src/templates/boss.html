@@ -1,22 +1,27 @@
 {% extends "learn_base.html" %}
+{% block body_class %}battle-page{% endblock %}
 {% block title %}{{ course.title }}・ボス戦{% endblock %}
 {% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}</a> / ボス戦{% endblock %}
 {% block content %}
+  {% set enemy_kind = 'boss' %}
+  {% set enemy_name = course.boss_name|default('訓練ボス') %}
+  {% set enemy_max_hp = max_hp %}
+  {% set enemy_hp = progress.boss_hp %}
+  {% set battle_answered = progress.boss_answered %}
+  {% set battle_correct = progress.boss_correct %}
+  {% set battle_finished = false %}
+  <div class="battle-stage {{ 'is-miss' if battle_answered and not battle_correct else '' }}">
   <p class="eyebrow">FINAL BATTLE / {{ course.title }}</p>
   <h1>ボス戦</h1>
-  <p>QUESTION {{ progress.boss_index + 1 }} / {{ max_hp }}。1問につき1回回答し、全問正解で撃破します。正解数 {{ progress.boss_correct_count }} / {{ max_hp }}。</p>
-  <p class="encounter-alert boss-alert">BOSS DETECTED / 最終訓練開始</p>
-  <div class="enemy-card boss-enemy enemy-arrival">
-    <span class="enemy-icon" aria-hidden="true">✦</span>
-    <div class="boss-details"><span class="boss-label">BOSS</span><strong>{{ course.boss_name|default('訓練ボス') }}</strong><p class="hp" aria-label="ボスHP {{ progress.boss_hp }} / {{ max_hp }}">BOSS HP: {{ "■" * progress.boss_hp }}{{ "□" * (max_hp - progress.boss_hp) }}</p><div class="hp-track" role="progressbar" aria-label="ボスHP" aria-valuemin="0" aria-valuemax="{{ max_hp }}" aria-valuenow="{{ progress.boss_hp }}"><span class="hp-fill" style="width: {{ progress.boss_hp / max_hp * 100 }}%"></span></div></div>
-  </div>
-  <section class="panel question-panel">
-    <p class="eyebrow">問題 {{ progress.boss_index + 1 }} / {{ max_hp }}</p>
+  <p class="battle-question-count">QUESTION {{ progress.boss_index + 1 }} / {{ max_hp }} ・ 正解数 {{ progress.boss_correct_count }} / {{ max_hp }}</p>
+  {% include '_battle_field.html' %}
+  <section class="panel question-panel quiz-zone {{ 'code-debug-question' if question_mode == 'code' and not progress.boss_answered else '' }}">
     <h2>{{ question.prompt }}</h2>
     {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
     {% if progress.boss_answered %}
-      <div class="panel {{ 'success-panel' if progress.boss_correct else 'answer-failed' }}" aria-live="polite">
+      <div class="panel battle-feedback {{ 'success-panel' if progress.boss_correct else 'answer-failed' }}" aria-live="polite">
         <p class="eyebrow">{{ "CORRECT / HIT" if progress.boss_correct else "INCORRECT / ATTACK FAILED" }}</p>
+        {% if progress.boss_correct %}<h3>{{ 'BOSS DEFEATED / ロボット撃破！' if enemy_hp == 0 else 'HIT / ロボットに命中' }}</h3>{% endif %}
         {% if not progress.boss_correct %}
           <p>あなたの回答：<strong>{{ submitted_answer }}</strong></p>
           {% if progress.boss_submitted_code %}<pre><code>{{ progress.boss_submitted_code }}</code></pre>{% endif %}
@@ -63,4 +68,5 @@
     {% endif %}
     {% endif %}
   </section>
+  </div>
 {% endblock %}

@@ -2,6 +2,14 @@
 {% block title %}{{ course.title }}・BOSS結果{% endblock %}
 {% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}・訓練選択</a> / BOSS結果{% endblock %}
 {% block content %}
+  {% set enemy_kind = 'boss' %}
+  {% set enemy_name = course.boss_name|default('訓練ボス') %}
+  {% set enemy_max_hp = result.total %}
+  {% set enemy_hp = result.hp %}
+  {% set battle_answered = false %}
+  {% set battle_correct = false %}
+  {% set battle_finished = true %}
+  {% include '_battle_field.html' %}
   <section class="panel completion failed-completion">
     <p class="eyebrow">BOSS BATTLE RESULT</p>
     <h1>BOSS BATTLE FAILED</h1>

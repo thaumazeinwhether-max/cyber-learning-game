@@ -6,7 +6,7 @@
     <title>{% block title %}サイバー防衛学校{% endblock %} | Cyber Learning Game</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
-  <body>
+  <body class="learn-interface {% block body_class %}{% endblock %}">
     <main class="container">
       <nav class="breadcrumbs" aria-label="現在地">
         <a href="{{ url_for('index') }}">ホーム</a> / <a href="{{ url_for('learn.home') }}">サイバー防衛学校</a>

@@ -2,10 +2,19 @@
 {% block title %}{{ lesson.title }}・訓練結果{% endblock %}
 {% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}・訓練選択</a> / 訓練結果{% endblock %}
 {% block content %}
+  {% set enemy_kind = 'drone' %}
+  {% set enemy_name = 'ACADEMY DRONE' %}
+  {% set enemy_max_hp = result.total %}
+  {% set enemy_hp = result.total - result.correct_count %}
+  {% set battle_answered = false %}
+  {% set battle_correct = false %}
+  {% set battle_finished = true %}
+  {% include '_battle_field.html' %}
   <section class="panel completion failed-completion">
     <p class="eyebrow">TRAINING RESULT</p>
     <h1>UNIT CLEAR FAILED</h1>
     <p class="result-score">{{ result.correct_count }} / {{ result.total }} 正解</p>
+    <p>DRONE HP {{ enemy_hp }} / {{ enemy_max_hp }} — BATTLE FAILED</p>
     <p>理解が不十分な項目があります。解説を確認して、UNIT全体にもう一度挑戦しましょう。</p>
     <div class="completion-actions">
       <form method="post" action="{{ url_for('learn.start_lesson', course_id=course_id, lesson_id=lesson.id) }}">

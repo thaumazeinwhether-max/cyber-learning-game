@@ -117,8 +117,8 @@ def test_it_battle_wrong_then_next_question(client):
     )
     assert "不正解" in page_text(wrong)
     assert "INCORRECT / ATTACK FAILED" in page_text(wrong)
-    assert "ENEMY HP: 1 / 1" in page_text(wrong)
-    assert "ENEMY DETECTED" in page_text(wrong)
+    assert 'aria-label="ドローン HP 2 / 2"' in page_text(wrong)
+    assert "INCOMING FIRE" in page_text(wrong)
     assert "回答する" not in page_text(wrong)
 
     repeat = client.post(
@@ -180,7 +180,7 @@ def test_python_lesson_and_code_battle(client):
         data={"question_index": "0", "answer": "x = 11"}, follow_redirects=True,
     )
     assert "不正解" in page_text(wrong)
-    assert "ENEMY HP: 1 / 1" in page_text(wrong)
+    assert 'aria-label="ドローン HP 2 / 2"' in page_text(wrong)
     assert "x = 10" in page_text(wrong)
     assert "回答する" not in page_text(wrong)
 
@@ -193,7 +193,7 @@ def test_python_quote_styles_and_no_execution(client):
         "/learn/python/variables/answer",
         data={"question_index": "1", "answer": 'print("Hello")'}, follow_redirects=True,
     )
-    assert "敵を撃破" in page_text(same_meaning)
+    assert "ENEMY DEFEATED" in page_text(same_meaning)
 
     client.post("/learn/python/variables/next")
     client.post("/learn/python/conditions/start")
@@ -255,7 +255,7 @@ def test_dev_shortcut_disabled_by_default_and_zero(client, monkeypatch):
         "/learn/it/computer/answer",
         data={"question_index": "0", "action": "dev_skip"}, follow_redirects=True,
     )
-    assert "ENEMY HP: 1 / 1" in page_text(forged)
+    assert 'aria-label="ドローン HP 2 / 2"' in page_text(forged)
     monkeypatch.setenv("LEARN_DEV_SHORTCUT", "0")
     assert "DEV MODE" not in page_text(client.get("/learn/it/computer/battle"))
 
@@ -270,13 +270,13 @@ def test_dev_shortcut_uses_normal_progress(client, monkeypatch):
         "/learn/it/computer/answer",
         data={"question_index": "0", "action": "dev_skip"}, follow_redirects=True,
     )
-    assert "敵を撃破" in page_text(skipped)
+    assert "HIT / ドローンに命中" in page_text(skipped)
     client.post("/learn/it/computer/next")
     skipped_again = client.post(
         "/learn/it/computer/answer",
         data={"question_index": "1", "action": "dev_skip"}, follow_redirects=True,
     )
-    assert "敵を撃破" in page_text(skipped_again)
+    assert "ENEMY DEFEATED" in page_text(skipped_again)
     next_lesson = client.post("/learn/it/computer/next", follow_redirects=True)
     assert "TRAINING COMPLETE" in page_text(next_lesson)
     assert "次の訓練へ" in page_text(next_lesson)

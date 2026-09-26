@@ -2,6 +2,14 @@
 {% block title %}{{ course.title }} 修了{% endblock %}
 {% block breadcrumb %} / {{ course.title }} 修了{% endblock %}
 {% block content %}
+  {% set enemy_kind = 'boss' %}
+  {% set enemy_name = course.boss_name|default('訓練ボス') %}
+  {% set enemy_max_hp = course.boss|length %}
+  {% set enemy_hp = 0 %}
+  {% set battle_answered = false %}
+  {% set battle_correct = true %}
+  {% set battle_finished = true %}
+  {% include '_battle_field.html' %}
   <div class="panel completion course-completion">
     <p class="eyebrow">BOSS DEFEATED / PERFECT</p>
     <div class="completion-mark" aria-hidden="true">✦</div>

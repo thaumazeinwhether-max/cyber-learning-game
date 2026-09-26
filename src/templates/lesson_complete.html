@@ -2,6 +2,14 @@
 {% block title %}{{ lesson.title }}・訓練修了{% endblock %}
 {% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}・訓練選択</a> / 訓練修了{% endblock %}
 {% block content %}
+  {% set enemy_kind = 'drone' %}
+  {% set enemy_name = 'ACADEMY DRONE' %}
+  {% set enemy_max_hp = lesson.questions|length %}
+  {% set enemy_hp = 0 %}
+  {% set battle_answered = false %}
+  {% set battle_correct = true %}
+  {% set battle_finished = true %}
+  {% include '_battle_field.html' %}
   <section class="panel completion training-completion">
     <p class="eyebrow">PERFECT / {{ "UNIT COMPLETE / TRAINING COMPLETE" if course.curriculum_number else "TRAINING COMPLETE" }}</p>
     <div class="completion-mark" aria-hidden="true">✓</div>

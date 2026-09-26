@@ -1,19 +1,24 @@
 {% extends "learn_base.html" %}
+{% block body_class %}battle-page{% endblock %}
 {% block title %}{{ lesson.title }}・通常戦{% endblock %}
 {% block breadcrumb %} / <a href="{{ url_for('learn.course_home', course_id=course_id) }}">{{ course.title }}</a> / 通常戦{% endblock %}
 {% block content %}
+  {% set enemy_kind = 'drone' %}
+  {% set enemy_name = 'ACADEMY DRONE' %}
+  {% set enemy_max_hp = lesson.questions|length %}
+  {% set enemy_hp = enemy_max_hp - progress.correct_count %}
+  {% set battle_answered = progress.question_answered %}
+  {% set battle_correct = progress.question_correct %}
+  {% set battle_finished = false %}
+  <div class="battle-stage {{ 'is-miss' if battle_answered and not battle_correct else '' }}">
   <p class="eyebrow">OUTPUT BATTLE / {{ lesson.title }}</p>
   <h1>通常戦</h1>
-  <p>QUESTION {{ progress.question_index + 1 }} / {{ lesson.questions|length }}。直前の教材を思い出して答えよう。</p>
-  <p class="encounter-alert">{{ "THREAT ELIMINATED / 脅威を排除" if progress.question_correct else "ENEMY DETECTED / 敵性プログラムを検知" }}</p>
-  <div class="enemy-card {{ 'defeated' if progress.question_correct else 'enemy-arrival' }}">
-    <span class="enemy-icon" aria-hidden="true">◆</span>
-    <div><strong>{{ "ENEMY DEFEATED / 訓練ドローン撃破" if progress.question_correct else "訓練ドローン" }}</strong><p>ENEMY HP: {{ 0 if progress.question_correct else 1 }} / 1</p></div>
-  </div>
+  {% include '_battle_field.html' %}
+  <p class="battle-question-count">QUESTION {{ progress.question_index + 1 }} / {{ enemy_max_hp }}</p>
   {% if progress.question_answered %}
-    <section class="panel {{ 'success-panel' if progress.question_correct else 'answer-failed' }}" aria-live="polite">
+    <section class="panel battle-feedback quiz-zone {{ 'success-panel' if progress.question_correct else 'answer-failed' }}" aria-live="polite">
       <p class="eyebrow">{{ "CORRECT / HIT / 攻撃成功" if progress.question_correct else "INCORRECT / ATTACK FAILED" }}</p>
-      <h2>{{ "ENEMY DEFEATED / 敵を撃破！" if progress.question_correct else "今回は不正解" }}</h2>
+      <h2>{{ "ENEMY DEFEATED / ドローン撃破！" if enemy_hp == 0 else "HIT / ドローンに命中" if progress.question_correct else "今回は不正解" }}</h2>
       <h3>{{ question.prompt }}</h3>
       {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
       {% if not progress.question_correct %}
@@ -30,7 +35,7 @@
       <button class="button" type="submit">{{ "次の問題へ" if progress.question_index + 1 < lesson.questions|length else "訓練結果を見る" }}</button>
     </form>
   {% else %}
-    <section class="panel question-panel">
+    <section class="panel question-panel quiz-zone">
       <h2>{{ question.prompt }}</h2>
       {% if question.code %}<pre><code>{{ question.code }}</code></pre>{% endif %}
       <form method="post" action="{{ url_for('learn.answer_battle', course_id=course_id, lesson_id=lesson.id) }}">
@@ -61,4 +66,5 @@
       {% endif %}
     </section>
   {% endif %}
+  </div>
 {% endblock %}
