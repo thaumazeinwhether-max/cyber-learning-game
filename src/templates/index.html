@@ -6,7 +6,7 @@
     <title>Cyber Learning Game</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
-  <body>
+  <body class="hud-interface app-home">
     <main class="container">
       <header class="intro">
         <p class="eyebrow">Cyber Learning Game</p>
@@ -17,21 +17,23 @@
       <section aria-labelledby="phases-heading">
         <h2 id="phases-heading">3つのフェーズ</h2>
         <ol class="phases">
-          <li>
+          <li class="panel phase-active">
             <span class="phase-number">01</span>
             <h3>Learn</h3>
             <p>ITやPythonの基礎を学ぶ。</p>
             <a class="button" href="{{ url_for('learn.home') }}">サイバー防衛学校へ</a>
           </li>
-          <li>
+          <li class="panel phase-pending">
             <span class="phase-number">02</span>
             <h3>Build</h3>
             <p>学んだ知識を使い、仮想システムを作る。</p>
+            <span class="phase-state">準備中</span>
           </li>
-          <li>
+          <li class="panel phase-pending">
             <span class="phase-number">03</span>
             <h3>Attack &amp; Defend</h3>
             <p>演習用の仮想環境で、攻撃と防御を学ぶ。</p>
+            <span class="phase-state">準備中</span>
           </li>
         </ol>
       </section>

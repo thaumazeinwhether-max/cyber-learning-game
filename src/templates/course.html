@@ -35,7 +35,16 @@
       <h2>BOSS / ボス戦</h2>
       <p>学んだ内容を使い、{{ course.boss|length }}問すべてに正解してHP{{ course.boss|length }}の{{ course.boss_name|default('ボス') }}を倒そう。</p>
       {% if progress.course_complete %}
-        <a class="button" href="{{ url_for('learn.complete', course_id=course_id) }}">修了画面へ</a>
+        <div class="training-actions">
+          <a class="button button-secondary" href="{{ url_for('learn.complete', course_id=course_id) }}">修了画面へ</a>
+          {% if progress.boss_started %}
+            <a class="button" href="{{ url_for('learn.boss', course_id=course_id) }}">ボス戦を続ける</a>
+          {% else %}
+            <form method="post" action="{{ url_for('learn.start_boss', course_id=course_id) }}">
+              <button class="button" type="submit">BOSSに再挑戦</button>
+            </form>
+          {% endif %}
+        </div>
       {% elif boss_unlocked and progress.boss_started %}
         <a class="button" href="{{ url_for('learn.boss', course_id=course_id) }}">ボス戦を続ける</a>
       {% elif boss_unlocked %}

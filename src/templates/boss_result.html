@@ -16,11 +16,13 @@
     <p class="result-score">{{ result.correct_count }} / {{ result.total }} 正解</p>
     <p class="hp">{{ course.boss_name|default('BOSS') }} HP: {{ result.hp }} / {{ result.total }}</p>
     <p>解説を確認して知識を整理し、もう一度すべての問題に挑戦しましょう。</p>
+    {% if previously_completed %}<p class="previous-clear-note">過去の訓練修了記録と次の訓練の解放状態は維持されています。</p>{% endif %}
     <div class="completion-actions">
       <form method="post" action="{{ url_for('learn.start_boss', course_id=course_id) }}">
         <button class="button" type="submit">BOSSに再挑戦</button>
       </form>
       <a class="button button-secondary" href="{{ url_for('learn.course_home', course_id=course_id) }}#lesson-list">教材を読み直す</a>
+      {% if previously_completed %}<a class="button button-secondary" href="{{ url_for('learn.complete', course_id=course_id) }}">修了画面へ</a>{% endif %}
       <a class="button button-secondary" href="{{ url_for('learn.course_home', course_id=course_id) }}">訓練選択へ戻る</a>
     </div>
   </section>

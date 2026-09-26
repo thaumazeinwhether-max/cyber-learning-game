@@ -337,8 +337,8 @@ textarea, input[type="text"] {
 .completion-actions form { margin: 0; }
 .completion-actions .button { margin-top: 0; }
 
-/* Learn専用テーマ。トップページや将来のフェーズには影響させない。 */
-.learn-interface {
+/* アプリ共通のHUDテーマ。既存の全画面で背景と基本部品を共有する。 */
+.hud-interface {
   --hud-line: rgba(105, 207, 244, .38);
   --hud-bright: #91eaff;
   --hud-muted: #abc6d8;
@@ -353,19 +353,19 @@ textarea, input[type="text"] {
   background-attachment: fixed;
   font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", sans-serif;
 }
-.learn-interface a { color: var(--hud-bright); }
-.learn-interface a:hover { color: #d2f8ff; }
-.learn-interface :is(a, button, input, textarea):focus-visible { outline: 2px solid #b7f3ff; outline-offset: 3px; }
-.learn-interface .breadcrumbs {
+.hud-interface a { color: var(--hud-bright); }
+.hud-interface a:hover { color: #d2f8ff; }
+.hud-interface :is(a, button, input, textarea):focus-visible { outline: 2px solid #b7f3ff; outline-offset: 3px; }
+.hud-interface .breadcrumbs {
   padding-bottom: 5px;
   border-bottom: 1px solid var(--hud-line);
   color: var(--hud-muted);
   font-size: .9rem;
   letter-spacing: .02em;
 }
-.learn-interface .eyebrow { color: #72dafa; font-family: Consolas, "Courier New", monospace; letter-spacing: .11em; }
-.learn-interface h1, .learn-interface h2, .learn-interface h3 { color: #f1fbff; letter-spacing: .015em; }
-.learn-interface .intro {
+.hud-interface .eyebrow { color: #72dafa; font-family: Consolas, "Courier New", monospace; letter-spacing: .11em; }
+.hud-interface h1, .hud-interface h2, .hud-interface h3 { color: #f1fbff; letter-spacing: .015em; }
+.hud-interface .intro {
   position: relative;
   overflow: hidden;
   margin-bottom: 32px;
@@ -376,7 +376,7 @@ textarea, input[type="text"] {
   background: linear-gradient(115deg, rgba(13, 39, 66, .96), rgba(8, 23, 42, .85));
   box-shadow: inset 0 1px rgba(180, 240, 255, .08), 0 14px 38px rgba(0, 0, 0, .20);
 }
-.learn-interface .intro::after {
+.hud-interface .intro::after {
   content: "";
   position: absolute;
   top: 0;
@@ -386,26 +386,26 @@ textarea, input[type="text"] {
   background: linear-gradient(90deg, transparent, #7de4ff);
   box-shadow: 0 0 15px rgba(88, 207, 255, .65);
 }
-.learn-interface .intro > :first-child { margin-top: 0; }
-.learn-interface .intro > :last-child { margin-bottom: 0; }
-.learn-interface .flow,
-.learn-interface .completion-phase-note {
+.hud-interface .intro > :first-child { margin-top: 0; }
+.hud-interface .intro > :last-child { margin-bottom: 0; }
+.hud-interface .flow,
+.hud-interface .completion-phase-note {
   border: 1px solid rgba(108, 207, 246, .35);
   border-left: 3px solid #78dfff;
   border-radius: 3px;
   color: #d2f4ff;
   background: rgba(15, 55, 82, .58);
 }
-.learn-interface .panel,
-.learn-interface .chapter-section,
-.learn-interface .chapter-nav {
+.hud-interface .panel,
+.hud-interface .chapter-section,
+.hud-interface .chapter-nav {
   border-color: var(--hud-line);
   border-radius: 5px;
   background: linear-gradient(145deg, rgba(15, 35, 58, .90), rgba(8, 22, 39, .93));
   box-shadow: inset 0 1px rgba(190, 241, 255, .055), 0 9px 25px rgba(0, 0, 0, .13);
 }
-.learn-interface .course-grid .panel { display: flex; flex-direction: column; position: relative; }
-.learn-interface .course-grid .panel::before {
+.hud-interface .course-grid .panel { display: flex; flex-direction: column; position: relative; }
+.hud-interface .course-grid .panel::before {
   content: "";
   position: absolute;
   inset: -1px auto auto -1px;
@@ -413,22 +413,22 @@ textarea, input[type="text"] {
   height: 2px;
   background: linear-gradient(90deg, #80e4ff, transparent);
 }
-.learn-interface .course-grid .panel .button { align-self: flex-start; margin-top: auto; }
-.learn-interface .course-grid .panel p:not(.eyebrow) { color: #c1d8e6; }
-.learn-interface .course-path .panel { border-left: 3px solid #4eafcc; }
-.learn-interface .training-card.state-ready { border-left-color: #8be7ff; box-shadow: inset 3px 0 rgba(88, 206, 245, .12), 0 0 18px rgba(37, 164, 207, .08); }
-.learn-interface .training-card.state-complete { border-left-color: #78d9c1; }
-.learn-interface .training-card.state-locked { border-left-color: #536c80; background: rgba(11, 24, 41, .76); }
-.learn-interface .training-card.boss-panel.state-ready { border-left-color: #a6b5ff; }
-.learn-interface .training-status { border: 1px solid currentColor; border-radius: 2px; font-family: Consolas, "Courier New", monospace; letter-spacing: .04em; }
-.learn-interface .status-ready { color: #a8efff; background: rgba(28, 104, 139, .35); }
-.learn-interface .status-complete { color: #a7e9d8; background: rgba(31, 94, 85, .35); }
-.learn-interface .status-locked { color: #b5c6d5; background: rgba(48, 65, 83, .38); }
-.learn-interface .training-substatus,
-.learn-interface .example,
-.learn-interface .hint,
-.learn-interface .chapter-code figcaption { color: var(--hud-muted); }
-.learn-interface .button {
+.hud-interface .course-grid .panel .button { align-self: flex-start; margin-top: auto; }
+.hud-interface .course-grid .panel p:not(.eyebrow) { color: #c1d8e6; }
+.hud-interface .course-path .panel { border-left: 3px solid #4eafcc; }
+.hud-interface .training-card.state-ready { border-left-color: #8be7ff; box-shadow: inset 3px 0 rgba(88, 206, 245, .12), 0 0 18px rgba(37, 164, 207, .08); }
+.hud-interface .training-card.state-complete { border-left-color: #78d9c1; }
+.hud-interface .training-card.state-locked { border-left-color: #536c80; background: rgba(11, 24, 41, .76); }
+.hud-interface .training-card.boss-panel.state-ready { border-left-color: #a6b5ff; }
+.hud-interface .training-status { border: 1px solid currentColor; border-radius: 2px; font-family: Consolas, "Courier New", monospace; letter-spacing: .04em; }
+.hud-interface .status-ready { color: #a8efff; background: rgba(28, 104, 139, .35); }
+.hud-interface .status-complete { color: #a7e9d8; background: rgba(31, 94, 85, .35); }
+.hud-interface .status-locked { color: #b5c6d5; background: rgba(48, 65, 83, .38); }
+.hud-interface .training-substatus,
+.hud-interface .example,
+.hud-interface .hint,
+.hud-interface .chapter-code figcaption { color: var(--hud-muted); }
+.hud-interface .button {
   border: 1px solid #8ceaff;
   border-radius: 3px;
   color: #051522;
@@ -436,71 +436,81 @@ textarea, input[type="text"] {
   box-shadow: 0 0 14px rgba(61, 202, 244, .22), inset 0 1px rgba(255, 255, 255, .45);
   letter-spacing: .02em;
 }
-.learn-interface .button:hover,
-.learn-interface .button:focus-visible { color: #03121e; background: #c2f5ff; box-shadow: 0 0 20px rgba(93, 219, 255, .40); }
-.learn-interface .button-secondary { color: #c6f2ff; background: rgba(8, 36, 57, .62); box-shadow: none; }
-.learn-interface .button-secondary:hover,
-.learn-interface .button-secondary:focus-visible { color: #041523; }
-.learn-interface .button-disabled { border-color: #65798b; color: #c9d5df; background: #3d5366; box-shadow: none; }
-.learn-interface .chapter-connection { border-left: 3px solid #78dcff; }
-.learn-interface .chapter-section h2 { border-bottom-color: var(--hud-line); color: #dbf8ff; }
-.learn-interface .chapter-section h2::before { content: "▸"; margin-right: 9px; color: #70d8f8; }
-.learn-interface .chapter-nav { border-left: 3px solid #4baecc; }
-.learn-interface .chapter-nav strong,
-.learn-interface .term { color: #9cecff; }
-.learn-interface .concept-flow li { border-color: var(--hud-line); border-radius: 3px; background: rgba(12, 51, 75, .72); }
-.learn-interface .comparison-table th,
-.learn-interface .comparison-table td { border-color: var(--hud-line); }
-.learn-interface .comparison-table th { color: #e0f8ff; background: rgba(23, 77, 109, .72); }
-.learn-interface .comparison-table tr:nth-child(even) { background: rgba(24, 59, 83, .36); }
-.learn-interface pre { border: 1px solid rgba(102, 190, 229, .30); border-left: 3px solid #57c8ed; border-radius: 3px; color: #d9f5ff; background: #061321; }
-.learn-interface .chapter-callout,
-.learn-interface .takeaway { border: 1px solid rgba(101, 208, 234, .32); border-left: 3px solid #7cddf1; border-radius: 3px; background: rgba(13, 63, 78, .55); }
-.learn-interface .chapter-callout.warning,
-.learn-interface .misconception { border-left-color: #f1bd79; background: rgba(83, 52, 42, .48); }
-.learn-interface .chapter-callout.key-points { border-left-color: #83e0ce; background: rgba(19, 79, 75, .50); }
-.learn-interface .notice-success,
-.learn-interface .success-panel { border-color: #62d6ba; background: rgba(17, 74, 73, .72); }
-.learn-interface .notice-error,
-.learn-interface .answer-failed,
-.learn-interface .failed-completion { border-color: #d8968a; background: linear-gradient(140deg, rgba(26, 40, 59, .96), rgba(59, 32, 49, .91)); }
-.learn-interface .answer-feedback { border-left-color: #f4ba7c; background: rgba(82, 49, 55, .78); }
-.learn-interface .result-score { color: #a8ecff; font-family: Consolas, "Courier New", monospace; }
-.learn-interface .completion { border-top: 2px solid #7bdfff; }
-.learn-interface .completion-mark { border-color: #80e9ff; color: #a5f0ff; box-shadow: 0 0 18px rgba(78, 211, 247, .24); }
-.learn-interface .course-completion { border-color: #9cc9ff; background: linear-gradient(140deg, rgba(17, 54, 78, .94), rgba(16, 29, 54, .96)); }
-.learn-interface .course-completion .completion-mark { border-color: #a5c8ff; color: #c6e3ff; }
-.learn-interface .next-course-note { color: #badff1; }
-.learn-interface .battlefield { border-color: #60b4d5; background: radial-gradient(ellipse at 50% 82%, #16445f, #0a233b 58%, #071726); box-shadow: inset 0 0 30px rgba(68, 168, 208, .13), 0 0 20px rgba(32, 156, 206, .11); }
-.learn-interface .battlefield::before { opacity: .26; background-image: linear-gradient(transparent 96%, #7bdafa 97%), linear-gradient(90deg, transparent 96%, #7bdafa 97%); }
-.learn-interface .boss-field { border-color: #91b7ed; background: radial-gradient(ellipse at 65% 80%, #263d64, #12253f 58%, #0b1629); }
-.learn-interface .battle-kicker { border-color: #84e5ff; color: #b0f2ff; }
-.learn-interface .boss-field .battle-kicker { border-color: #a9caff; color: #d4e3ff; }
-.learn-interface .enemy-type { color: #a9cadc; }
-.learn-interface .hp-track { border-color: #80a9c4; background: #061725; }
-.learn-interface .hp-fill { background: linear-gradient(90deg, #268dba, #a6eaff); }
-.learn-interface .boss-field .hp-fill { background: linear-gradient(90deg, #5475bf, #afdaff); }
-.learn-interface .boss-field .hp-numbers strong,
-.learn-interface .hp-symbols { color: #cce4ff; }
-.learn-interface .robot-head { border-color: #a6c5dd; background: linear-gradient(#5b738d, #2a3e59); }
-.learn-interface .robot-torso { border-color: #8baec9; background: linear-gradient(125deg, #526e8a, #1e3653); }
-.learn-interface .robot-arm,
-.learn-interface .robot-leg { border-color: #789fbf; background: #294461; }
-.learn-interface .robot-antenna,
-.learn-interface .robot-antenna::after { background: #b5e6ff; }
-.learn-interface .robot-head i { background: #a6eeff; box-shadow: 0 0 12px #7fdfff; }
-.learn-interface .robot-torso i { border-color: #a6e4ff; background: #366c9a; }
-.learn-interface .battle-callout { border: 1px solid rgba(113, 218, 245, .36); border-radius: 2px; color: #c5f4ff; background: rgba(6, 37, 55, .87); }
-.learn-interface .boss-field .battle-callout { color: #e0edff; background: rgba(21, 41, 78, .87); }
-.learn-interface .choices label { border-color: rgba(102, 182, 216, .42); border-radius: 3px; background: rgba(6, 22, 39, .38); }
-.learn-interface .choices label:hover,
-.learn-interface .choices label:has(input:checked) { border-color: #8bdfff; background: rgba(28, 89, 119, .42); }
-.learn-interface input[type="radio"] { accent-color: #74d9f5; }
-.learn-interface textarea,
-.learn-interface input[type="text"] { border-color: #6e9cb9; border-radius: 3px; color: #e7f8ff; background: #071626; }
-.learn-interface .dev-badge { border: 1px solid #e5bc79; border-radius: 2px; color: #ffe0ac; background: rgba(94, 63, 30, .68); }
-.learn-interface .dev-form button { border-color: #d9b575; color: #f4d6a5; }
+.hud-interface .button:hover,
+.hud-interface .button:focus-visible { color: #03121e; background: #c2f5ff; box-shadow: 0 0 20px rgba(93, 219, 255, .40); }
+.hud-interface .button-secondary { color: #c6f2ff; background: rgba(8, 36, 57, .62); box-shadow: none; }
+.hud-interface .button-secondary:hover,
+.hud-interface .button-secondary:focus-visible { color: #041523; }
+.hud-interface .button-disabled { border-color: #65798b; color: #c9d5df; background: #3d5366; box-shadow: none; }
+.hud-interface .chapter-connection { border-left: 3px solid #78dcff; }
+.hud-interface .chapter-section h2 { border-bottom-color: var(--hud-line); color: #dbf8ff; }
+.hud-interface .chapter-section h2::before { content: "▸"; margin-right: 9px; color: #70d8f8; }
+.hud-interface .chapter-nav { border-left: 3px solid #4baecc; }
+.hud-interface .chapter-nav strong,
+.hud-interface .term { color: #9cecff; }
+.hud-interface .concept-flow li { border-color: var(--hud-line); border-radius: 3px; background: rgba(12, 51, 75, .72); }
+.hud-interface .comparison-table th,
+.hud-interface .comparison-table td { border-color: var(--hud-line); }
+.hud-interface .comparison-table th { color: #e0f8ff; background: rgba(23, 77, 109, .72); }
+.hud-interface .comparison-table tr:nth-child(even) { background: rgba(24, 59, 83, .36); }
+.hud-interface pre { border: 1px solid rgba(102, 190, 229, .30); border-left: 3px solid #57c8ed; border-radius: 3px; color: #d9f5ff; background: #061321; }
+.hud-interface .chapter-callout,
+.hud-interface .takeaway { border: 1px solid rgba(101, 208, 234, .32); border-left: 3px solid #7cddf1; border-radius: 3px; background: rgba(13, 63, 78, .55); }
+.hud-interface .chapter-callout.warning,
+.hud-interface .misconception { border-left-color: #f1bd79; background: rgba(83, 52, 42, .48); }
+.hud-interface .chapter-callout.key-points { border-left-color: #83e0ce; background: rgba(19, 79, 75, .50); }
+.hud-interface .notice-success,
+.hud-interface .success-panel { border-color: #62d6ba; background: rgba(17, 74, 73, .72); }
+.hud-interface .notice-error,
+.hud-interface .answer-failed,
+.hud-interface .failed-completion { border-color: #d8968a; background: linear-gradient(140deg, rgba(26, 40, 59, .96), rgba(59, 32, 49, .91)); }
+.hud-interface .answer-feedback { border-left-color: #f4ba7c; background: rgba(82, 49, 55, .78); }
+.hud-interface .result-score { color: #a8ecff; font-family: Consolas, "Courier New", monospace; }
+.hud-interface .completion { border-top: 2px solid #7bdfff; }
+.hud-interface .completion-mark { border-color: #80e9ff; color: #a5f0ff; box-shadow: 0 0 18px rgba(78, 211, 247, .24); }
+.hud-interface .course-completion { border-color: #9cc9ff; background: linear-gradient(140deg, rgba(17, 54, 78, .94), rgba(16, 29, 54, .96)); }
+.hud-interface .course-completion .completion-mark { border-color: #a5c8ff; color: #c6e3ff; }
+.hud-interface .next-course-note { color: #badff1; }
+.hud-interface .battlefield { border-color: #60b4d5; background: radial-gradient(ellipse at 50% 82%, #16445f, #0a233b 58%, #071726); box-shadow: inset 0 0 30px rgba(68, 168, 208, .13), 0 0 20px rgba(32, 156, 206, .11); }
+.hud-interface .battlefield::before { opacity: .26; background-image: linear-gradient(transparent 96%, #7bdafa 97%), linear-gradient(90deg, transparent 96%, #7bdafa 97%); }
+.hud-interface .boss-field { border-color: #91b7ed; background: radial-gradient(ellipse at 65% 80%, #263d64, #12253f 58%, #0b1629); }
+.hud-interface .battle-kicker { border-color: #84e5ff; color: #b0f2ff; }
+.hud-interface .boss-field .battle-kicker { border-color: #a9caff; color: #d4e3ff; }
+.hud-interface .enemy-type { color: #a9cadc; }
+.hud-interface .hp-track { border-color: #80a9c4; background: #061725; }
+.hud-interface .hp-fill { background: linear-gradient(90deg, #268dba, #a6eaff); }
+.hud-interface .boss-field .hp-fill { background: linear-gradient(90deg, #5475bf, #afdaff); }
+.hud-interface .boss-field .hp-numbers strong,
+.hud-interface .hp-symbols { color: #cce4ff; }
+.hud-interface .robot-head { border-color: #a6c5dd; background: linear-gradient(#5b738d, #2a3e59); }
+.hud-interface .robot-torso { border-color: #8baec9; background: linear-gradient(125deg, #526e8a, #1e3653); }
+.hud-interface .robot-arm,
+.hud-interface .robot-leg { border-color: #789fbf; background: #294461; }
+.hud-interface .robot-antenna,
+.hud-interface .robot-antenna::after { background: #b5e6ff; }
+.hud-interface .robot-head i { background: #a6eeff; box-shadow: 0 0 12px #7fdfff; }
+.hud-interface .robot-torso i { border-color: #a6e4ff; background: #366c9a; }
+.hud-interface .battle-callout { border: 1px solid rgba(113, 218, 245, .36); border-radius: 2px; color: #c5f4ff; background: rgba(6, 37, 55, .87); }
+.hud-interface .boss-field .battle-callout { color: #e0edff; background: rgba(21, 41, 78, .87); }
+.hud-interface .choices label { border-color: rgba(102, 182, 216, .42); border-radius: 3px; background: rgba(6, 22, 39, .38); }
+.hud-interface .choices label:hover,
+.hud-interface .choices label:has(input:checked) { border-color: #8bdfff; background: rgba(28, 89, 119, .42); }
+.hud-interface input[type="radio"] { accent-color: #74d9f5; }
+.hud-interface textarea,
+.hud-interface input[type="text"] { border-color: #6e9cb9; border-radius: 3px; color: #e7f8ff; background: #071626; }
+.hud-interface .dev-badge { border: 1px solid #e5bc79; border-radius: 2px; color: #ffe0ac; background: rgba(94, 63, 30, .68); }
+.hud-interface .dev-form button { border-color: #d9b575; color: #f4d6a5; }
+.hud-interface .training-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.hud-interface .training-actions form { margin: 0; }
+.hud-interface .training-actions .button { margin-top: 0; }
+.hud-interface .previous-clear-note { padding: 10px 14px; border: 1px solid rgba(123, 223, 255, .42); color: #d0f2ff; background: rgba(12, 50, 73, .66); }
+.hud-interface .phase-number { color: #80e6ff; font-family: Consolas, "Courier New", monospace; letter-spacing: .12em; }
+.app-home .phases .panel { display: flex; flex-direction: column; gap: 5px; border-top: 2px solid #7bdfff; }
+.app-home .phases .phase-pending { border-top-color: #668ba4; }
+.app-home .phases .button { align-self: flex-start; margin-top: auto; }
+.app-home .phase-state { align-self: flex-start; margin-top: auto; padding: 3px 9px; border: 1px solid #7895aa; color: #c1d5e2; font-family: Consolas, "Courier New", monospace; font-size: .84rem; }
+.app-home .status { padding: 11px 16px; border-left: 3px solid #74d7f7; color: #bcddeb; background: rgba(11, 42, 63, .58); }
 @media (max-width: 560px) {
-  .learn-interface .intro { padding: 20px; }
-  .learn-interface .breadcrumbs { line-height: 1.45; }
+  .hud-interface .intro { padding: 20px; }
+  .hud-interface .breadcrumbs { line-height: 1.45; }
 }

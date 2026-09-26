@@ -86,6 +86,11 @@ def lessons_finished(course, progress):
     )
 
 
+def can_challenge_boss(course, progress):
+    # 以前のCookieでUNIT一覧が欠けても、BOSS撃破済みの記録を優先する。
+    return progress["course_complete"] or lessons_finished(course, progress)
+
+
 def lesson_unlocked(course, progress, lesson_id):
     lesson_ids = [lesson["id"] for lesson in course["lessons"]]
     lesson_number = lesson_ids.index(lesson_id)
@@ -120,7 +125,7 @@ def course_home(course_id):
     progress = get_progress(course_id)
     return render_template(
         "course.html", course=course, course_id=course_id, progress=progress,
-        boss_unlocked=lessons_finished(course, progress),
+        boss_unlocked=can_challenge_boss(course, progress),
     )
 
 
@@ -278,10 +283,9 @@ def lesson_complete(course_id, lesson_id):
 def start_boss(course_id):
     course = get_course(course_id)
     progress = get_progress(course_id)
-    if not lessons_finished(course, progress):
+    if not can_challenge_boss(course, progress):
         return redirect(url_for("learn.course_home", course_id=course_id))
-    if progress["course_complete"]:
-        return redirect(url_for("learn.complete", course_id=course_id))
+    # 修了記録は残し、このBOSS挑戦に属する値だけを初期化する。
     progress["boss_started"] = True
     progress["boss_index"] = 0
     progress["boss_correct_count"] = 0
@@ -299,9 +303,7 @@ def start_boss(course_id):
 def boss(course_id):
     course = get_course(course_id)
     progress = get_progress(course_id)
-    if progress["course_complete"]:
-        return redirect(url_for("learn.complete", course_id=course_id))
-    if not lessons_finished(course, progress) or not progress["boss_started"]:
+    if not can_challenge_boss(course, progress) or not progress["boss_started"]:
         return redirect(url_for("learn.course_home", course_id=course_id))
     question = course["boss"][progress["boss_index"]]
     answer = progress.get("boss_submitted_answer", "")
@@ -338,7 +340,7 @@ def answer_boss(course_id):
     course = get_course(course_id)
     progress = get_progress(course_id)
     boss_url = url_for("learn.boss", course_id=course_id)
-    if not lessons_finished(course, progress) or not progress["boss_started"] or progress["course_complete"]:
+    if not can_challenge_boss(course, progress) or not progress["boss_started"]:
         return redirect(url_for("learn.course_home", course_id=course_id))
     if progress.get("boss_answered") or request.form.get("question_index") != str(progress["boss_index"]):
         return redirect(boss_url)
@@ -365,7 +367,7 @@ def answer_boss(course_id):
 def next_boss_question(course_id):
     course = get_course(course_id)
     progress = get_progress(course_id)
-    if not lessons_finished(course, progress) or not progress["boss_started"] or not progress.get("boss_answered"):
+    if not can_challenge_boss(course, progress) or not progress["boss_started"] or not progress.get("boss_answered"):
         return redirect(url_for("learn.course_home", course_id=course_id))
 
     next_index = progress["boss_index"] + 1
@@ -400,9 +402,10 @@ def boss_result(course_id):
     course = get_course(course_id)
     progress = get_progress(course_id)
     result = progress.get("boss_result")
-    if not lessons_finished(course, progress) or not result or result["passed"]:
+    if not can_challenge_boss(course, progress) or not result or result["passed"]:
         return redirect(url_for("learn.course_home", course_id=course_id))
-    return render_template("boss_result.html", course=course, course_id=course_id, result=result)
+    return render_template("boss_result.html", course=course, course_id=course_id,
+                           result=result, previously_completed=progress["course_complete"])
 
 
 @learn.route("/<course_id>/complete")
