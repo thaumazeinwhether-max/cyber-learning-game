@@ -1,6 +1,7 @@
 """正式第7訓練の節末問題と章末BOSS。コードはAST解析のみで採点する。"""
 
 from src.flask_basics_chapters import CHAPTERS
+from src.choice_order import arrange_choices
 
 
 def code_question(prompt, answer, explanation, *alternatives):
@@ -61,14 +62,14 @@ FLASK_BASICS_COURSE = {
             choice("テンプレートと静的ファイルの違いは？", ["HTML生成のひな形と、そのまま配信するCSS等", "完全に同じ", "どちらもCPU", "どちらもDNS"], 0, "テンプレートは値を埋めてHTMLを生成し、staticはCSS等を配信します。"),
         ]},
         {"id": "route", "title": "Route", "summary": "URLをPython関数へ結び付けます。", "questions": [
-            code_question("appが定義済みです。/へGETが来たらHelloを返すindex関数を書いてください。", "@app.route('/')\ndef index():\n    return 'Hello'", "@app.routeが/と関数を結び、returnが応答に使う値を返します。"),
+            code_question("appが定義済みです。/へGETが来たらHelloを返すindex関数を書いてください。", "@app.route('/')\ndef index():\n    return 'Hello'", "@app.routeが/と関数を結び、returnが応答に使う値を返します。", "@app.get('/')\ndef index():\n    return 'Hello'"),
             choice("次のコードでindex関数が呼ばれるのは？", ["対応する/へのRequest時", "定義直後に無限に", "CSS変更時だけ", "画像保存時だけ"], 0, "Flaskが/の要求を受けると登録済みの関数を呼びます。", "@app.route('/')\ndef index():\n    return 'Hello'"),
             choice("print('Hello')だけを使うとブラウザーへ返る？", ["返り値とは別なので代わりにならない", "必ずHelloページになる", "HTMLへ自動変換される", "DNSが返す"], 0, "ブラウザーへの応答には関数のreturnが必要です。"),
-            code_question("appが定義済みです。/pingへGETが来たらpongを返すping関数を書いてください。", "@app.route('/ping')\ndef ping():\n    return 'pong'", "パスと関数をrouteで対応付けます。"),
+            code_question("appが定義済みです。/pingへGETが来たらpongを返すping関数を書いてください。", "@app.route('/ping')\ndef ping():\n    return 'pong'", "パスと関数をrouteで対応付けます。", "@app.get('/ping')\ndef ping():\n    return 'pong'"),
         ]},
         {"id": "url_route", "title": "URLとRoute", "summary": "URLパスから応答までを追います。", "questions": [
             choice("https://example.com/learn/でFlaskのRouteが主に対応する部分は？", ["/learn/", "example.comだけ", "httpsだけ", "IPの全桁"], 0, "RouteはURLのパスに対応します。"),
-            code_question("appが定義済みです。/learn/へ要求が来たら訓練一覧を返すlearn_home関数を書いてください。", "@app.route('/learn/')\ndef learn_home():\n    return '訓練一覧'", "/learn/を登録し、関数で応答を返します。"),
+            code_question("appが定義済みです。/learn/へGETが来たら訓練一覧を返すlearn_home関数を書いてください。", "@app.route('/learn/')\ndef learn_home():\n    return '訓練一覧'", "/learn/を登録し、関数で応答を返します。", "@app.get('/learn/')\ndef learn_home():\n    return '訓練一覧'"),
             choice("未登録のURLパスへ要求したとき通常返るのは？", ["404", "200", "必ず500", "必ず302"], 0, "対応するルートがなければ通常404です。"),
             choice("URLパスと物理ファイルの関係は？", ["必ず一対一ではない", "常に同じ", "Routeとは無関係", "DNSがファイルを作る"], 0, "Flaskの関数がパスに応じて動的に応答できます。"),
         ]},
@@ -97,7 +98,7 @@ FLASK_BASICS_COURSE = {
             choice("request.formの値について適切なのは？", ["受け取った後も確認が必要", "必ず正しい", "必ず整数", "サーバーでは読めない"], 0, "利用者は値を改変できるので検証します。"),
         ]},
         {"id": "methods_redirect", "title": "GET / POSTとRedirect", "summary": "メソッドを分け、送信後に別ページへ移ります。", "questions": [
-            code_question("appが定義済みです。/submitでGETとPOSTを受け付け、okを返すsubmit関数を書いてください。", "@app.route('/submit', methods=['GET', 'POST'])\ndef submit():\n    return 'ok'", "methodsへ二つのHTTPメソッドを指定します。"),
+            code_question("appが定義済みです。/submitでGETとPOSTを受け付け、okを返すsubmit関数を書いてください。", "@app.route('/submit', methods=['GET', 'POST'])\ndef submit():\n    return 'ok'", "methodsへ二つのHTTPメソッドを指定します。", "@app.route('/submit', methods=['POST', 'GET'])\ndef submit():\n    return 'ok'"),
             code_question("requestが読み込み済みです。POSTならTrue、それ以外はFalseを返すis_post関数を書いてください。", "def is_post():\n    if request.method == 'POST':\n        return True\n    return False", "request.methodがPOSTか比較し、返り値を分けます。", "def is_post():\n    return request.method == 'POST'"),
             choice("Redirectの後に起きることは？", ["ブラウザーが移動先へ新しいRequest", "Pythonの関数が画面を直接描く", "CSSがPOSTを再送", "DNSがSessionを削除"], 0, "redirectのResponseを受けたブラウザーが移動先へ要求します。"),
             code_question("redirectとurl_forが読み込み済みです。doneへ移るgo関数を書いてください。", "def go():\n    return redirect(url_for('done'))", "url_forで移動先URLを作り、redirectのResponseを返します。"),
@@ -111,25 +112,25 @@ FLASK_BASICS_COURSE = {
         ]},
         {"id": "testing", "title": "Webアプリのテスト", "summary": "test clientで200と内容を確認します。", "questions": [
             code_question("clientが定義済みです。/へGETした結果をresponseへ保存してください。", "response = client.get('/')", "test clientがアプリの/へ要求を送ります。"),
-            code_question("responseが定義済みです。HTTP 200であることをassertしてください。", "assert response.status_code == 200", "status_codeが成功の番号200であるか確認します。"),
+            code_question("responseが定義済みです。HTTP 200であることをassertしてください。", "assert response.status_code == 200", "status_codeが成功の番号200であるか確認します。", "assert 200 == response.status_code"),
             choice("HTTP 200だけで保証されることは？", ["その応答が成功と分類されたこと", "全リンクが正しいこと", "全教材が正しいこと", "セキュリティが完璧なこと"], 0, "200はHTTP上の成功で、内容品質は別途確認します。"),
             choice("コード変更後に既存ページを再テストする理由は？", ["回帰による故障を見つける", "CPUを高速化する", "画像を変換する", "DNSを作る"], 0, "回帰テストは既存機能が壊れていないか確認します。"),
         ]},
     ],
     "boss": [
         review("要件：Flaskアプリをappへ作る。正しいか？", "from flask import Flask\napp = Flask(__name__)", True, "Flaskを読み込み、アプリオブジェクトを作っています。"),
-        review("前提：appは定義済み。要件：/へ来たらHelloをブラウザーへ返す。正しいか？", "@app.route('/')\ndef index():\n    print('Hello')", False, "printはサーバー側の出力で、応答の返り値ではありません。", "@app.route('/')\ndef index():\n    return 'Hello'"),
+        review("前提：appは定義済み。要件：/へGETが来たらHelloをブラウザーへ返す。正しいか？", "@app.route('/')\ndef index():\n    print('Hello')", False, "printはサーバー側の出力で、応答の返り値ではありません。", "@app.route('/')\ndef index():\n    return 'Hello'", ["@app.get('/')\ndef index():\n    return 'Hello'"]),
         boss_choice("GET /learn/が届くと何が起こる？", ["登録済みrouteが対応するPython関数を呼ぶ", "HTMLファイル名だけで必ず処理", "DNSが教材を採点", "CSSが関数を呼ぶ"], 0, "RouteがURLパスと関数を結びます。", "@app.route('/learn/')\ndef learn_home():\n    return '一覧'"),
         review("前提：render_templateは読み込み済み。要件：index関数でindex.htmlのHTMLを返す。正しいか？", "def index():\n    return render_template('index.html')", True, "テンプレートからHTMLを生成して返します。"),
         boss_choice("Pythonがtitle='防衛学校'を渡したとき、何が表示される？", ["防衛学校", "{{ title }}という文字だけ", "CSS", "HTTP 404"], 0, "Jinjaが渡されたtitleをHTMLへ表示します。", "<h1>{{ title }}</h1>"),
         boss_choice("style.cssの役割と取得方法は？", ["staticのCSSをブラウザーが追加取得", "テンプレート関数として自動実行", "Sessionにだけ保存", "Request不要"], 0, "HTMLが参照するとブラウザーがstaticのURLを要求します。", "<link rel=\"stylesheet\" href=\"/static/style.css\">"),
         review("前提：requestは読み込み済み。要件：formのanswerを読みvalueへ入れる。正しいか？", "value = request.form.get('answer', '')", True, "name=answerに対応する値を読みます。"),
-        review("前提：appは定義済み。要件：POSTだけを受け付ける/answerのrouteを作る。正しいか？", "@app.route('/answer', methods=['GET'])\ndef answer():\n    return 'ok'", False, "GETだけではPOSTを受け付けません。methodsをPOSTにします。", "@app.route('/answer', methods=['POST'])\ndef answer():\n    return 'ok'"),
+        review("前提：appは定義済み。要件：POSTだけを受け付ける/answerのrouteを作る。正しいか？", "@app.route('/answer', methods=['GET'])\ndef answer():\n    return 'ok'", False, "GETだけではPOSTを受け付けません。methodsをPOSTにします。", "@app.route('/answer', methods=['POST'])\ndef answer():\n    return 'ok'", ["@app.post('/answer')\ndef answer():\n    return 'ok'"]),
         review("前提：request、redirect、url_forは読み込み済み。要件：handle関数で、POSTならdoneへredirectし、GETなら入力画面を返す。正しいか？", "def handle():\n    if request.method == 'POST':\n        return redirect(url_for('done'))\n    return '入力画面'", True, "POST判定後はredirectし、それ以外は画面を返します。"),
         boss_choice("Flask標準Sessionとsecret keyについて正しいのは？", ["署名付きCookieの改ざん検知にsecret keyを使う", "署名は内容を暗号化する", "秘密値をCookieへ直書きしてよい", "secret keyはCSS用"], 0, "署名は改ざん検知で、暗号化ではありません。"),
         boss_choice("環境変数を使う理由と限界は？", ["設定をコードから分けられるが、それだけで秘密は守れない", "設定は必ず公開される", "すべての認証が不要になる", "CSSが自動生成される"], 0, "環境変数は設定分離の方法の一つで、管理方法にも注意します。"),
         review("前提：test clientが定義済み。要件：/のHTTP 200を確認する。正しいか？", "response = client.get('/')\nassert response.status_code == 200", True, "GETで応答を取得し、status_codeを確認します。"),
-        review("前提：test clientが定義済み。要件：/のHTTP 200を確認する。正しいか？", "response = client.get('/')\nassert response.status_code == 404", False, "404はNot Foundです。成功なら200と比較します。", "response = client.get('/')\nassert response.status_code == 200"),
+        review("前提：test clientが定義済み。要件：/のHTTP 200を確認する。正しいか？", "response = client.get('/')\nassert response.status_code == 404", False, "404はNot Foundです。成功なら200と比較します。", "response = client.get('/')\nassert response.status_code == 200", ["response = client.get('/')\nassert 200 == response.status_code"]),
         boss_choice("ブラウザーから画面表示までの正しい順序は？", ["Request→Flask Route→Python関数→Template→Response→ブラウザー", "CSS→DNS→Templateだけ", "Response→Request→Route", "Sessionだけで画面生成"], 0, "Python・HTTP・テンプレートの役割が一連の流れでつながります。"),
     ],
 }
@@ -137,17 +138,7 @@ FLASK_BASICS_COURSE = {
 for lesson in FLASK_BASICS_COURSE["lessons"]:
     lesson.update(CHAPTERS[lesson["id"]])
 
-for lesson_number, lesson in enumerate(FLASK_BASICS_COURSE["lessons"]):
-    for question_number, question in enumerate(lesson["questions"]):
-        if question.get("mode") == "choice":
-            offset = (lesson_number + question_number) % 4
-            question["options"] = question["options"][offset:] + question["options"][:offset]
-            question["answer"] = (question["answer"] - offset) % 4
-for question_number, question in enumerate(FLASK_BASICS_COURSE["boss"]):
-    if question.get("mode") == "choice":
-        offset = question_number % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
+arrange_choices(FLASK_BASICS_COURSE)
 
 for question in (
     [item for lesson in FLASK_BASICS_COURSE["lessons"] for item in lesson["questions"]]

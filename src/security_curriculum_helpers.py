@@ -1,6 +1,7 @@
 """第10〜12訓練で共通する、教材ブロックと知識問題の小さな補助関数。"""
 
 from src.chapter_blocks import code, flow, key_points, paragraph, section, table, warning
+from src.choice_order import arrange_choices
 
 
 def chapter(*, objective, why, connection, concept, mechanism, comparison,
@@ -59,16 +60,10 @@ def term(prompt, answer, explanation, *aliases):
 
 
 def prepare_course(course, chapters):
-    """本文を対応するUNITへ付け、4択の正解位置を固定規則で散らす。"""
-    for lesson_number, lesson in enumerate(course["lessons"]):
+    """本文を対応するUNITへ付け、4択の選択肢を安定した順序にする。"""
+    for lesson in course["lessons"]:
         lesson.update(chapters[lesson["id"]])
-        for question_number, question in enumerate(lesson["questions"]):
-            if "options" in question:
-                rotate_choice(question, (lesson_number + question_number) % 4)
-
-    for question_number, question in enumerate(course["boss"]):
-        if "options" in question:
-            rotate_choice(question, question_number % 4)
+    arrange_choices(course)
 
     for question in (
         [item for lesson in course["lessons"] for item in lesson["questions"]]
@@ -81,8 +76,3 @@ def prepare_course(course, chapters):
                 for index, option in enumerate(question["options"])
                 if index != question["answer"]
             }
-
-
-def rotate_choice(question, offset):
-    question["options"] = question["options"][offset:] + question["options"][:offset]
-    question["answer"] = (question["answer"] - offset) % 4

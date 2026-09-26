@@ -1,6 +1,7 @@
 """正式第9訓練の節末問題と章末BOSS。Gitコマンドは出題文として表示するだけ。"""
 
 from src.git_dev_chapters import CHAPTERS
+from src.choice_order import arrange_choices
 
 
 def choice(prompt, right, wrong1, wrong2, wrong3, explanation, source=None):
@@ -110,24 +111,14 @@ GIT_DEV_COURSE = {
         choice(".gitignoreへ.envを追加した。過去にpush済みの秘密は？", "自動削除されず別の対応が必要", "過去の全履歴から自動消去", "自動で暗号化", "pullだけで消える", "ignoreは過去の履歴を消す機能ではありません。"),
         choice("別PCでこのアプリを再現する資料の組み合わせは？", "READMEとrequirements.txt", "CSSだけ", "git logだけ", "HTTP 200だけ", "起動手順と依存情報の両方が必要です。"),
         true_false("pytestが成功すれば、未テストの画面にもバグは絶対にない。", "false", "成功はテストした条件についての結果です。"),
-        choice("作業ツリーを変更した。共有までの自然な流れは？", "status→テスト・確認→add→commit→必要ならpush", "push→変更→テスト省略", "commit→変更→add不要", "ignore→秘密を公開", "確認とテストを経て必要な変更を履歴に記録し、共有します。"),
+        choice("app.pyを修正し、個人設定ファイルも作った。共有前の流れとして適切なのは？", "statusで差分を把握→テスト→app.pyだけstage→commit→必要ならpush", "statusを省いて全ファイルをstage→commit→後で秘密を確認", "テスト前に個人設定もcommitし、.gitignoreで過去の履歴から消す", "commit前にpushすれば作業ツリーの変更だけを共有できる", "状態とテスト結果を確認し、共有すべき変更だけをstageして履歴に残します。"),
     ],
 }
 
 for lesson in GIT_DEV_COURSE["lessons"]:
     lesson.update(CHAPTERS[lesson["id"]])
 
-for lesson_index, lesson in enumerate(GIT_DEV_COURSE["lessons"]):
-    for question_index, question in enumerate(lesson["questions"]):
-        offset = (lesson_index + question_index) % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
-
-for question_index, question in enumerate(GIT_DEV_COURSE["boss"]):
-    if "options" in question:
-        offset = question_index % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
+arrange_choices(GIT_DEV_COURSE)
 
 for question in (
     [item for lesson in GIT_DEV_COURSE["lessons"] for item in lesson["questions"]]

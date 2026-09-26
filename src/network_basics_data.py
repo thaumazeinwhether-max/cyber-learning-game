@@ -1,6 +1,7 @@
 """正式第3訓練。各UNITは節末4問、BOSSは複数UNITの総合問題。"""
 
 from src.network_basics_chapters import CHAPTERS
+from src.choice_order import arrange_choices
 
 
 def choice(prompt, options, answer, explanation):
@@ -116,13 +117,4 @@ for lesson in NETWORK_BASICS_COURSE["lessons"]:
     lesson.update(CHAPTERS[lesson["id"]])
 
 # 固定順を保ちつつ、正解が常に同じ番号にならないよう選択肢を配置する。
-for lesson_number, lesson in enumerate(NETWORK_BASICS_COURSE["lessons"]):
-    for question_number, question in enumerate(lesson["questions"]):
-        offset = (lesson_number + question_number) % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
-for question_number, question in enumerate(NETWORK_BASICS_COURSE["boss"]):
-    if "options" in question:
-        offset = question_number % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
+arrange_choices(NETWORK_BASICS_COURSE)

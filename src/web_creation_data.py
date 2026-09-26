@@ -1,6 +1,7 @@
 """正式第6訓練の節末問題と総合BOSS。HTML/CSS/JSは読解で確認する。"""
 
 from src.web_creation_chapters import CHAPTERS
+from src.choice_order import arrange_choices
 
 
 def choice(prompt, options, answer, explanation, source=None):
@@ -121,16 +122,7 @@ for lesson in WEB_CREATION_COURSE["lessons"]:
     lesson.update(CHAPTERS[lesson["id"]])
 
 # 固定問題順のまま、正解番号が一つに偏らないよう表示順を分散する。
-for lesson_number, lesson in enumerate(WEB_CREATION_COURSE["lessons"]):
-    for question_number, question in enumerate(lesson["questions"]):
-        offset = (lesson_number + question_number) % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
-for question_number, question in enumerate(WEB_CREATION_COURSE["boss"]):
-    if "options" in question:
-        offset = question_number % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
+arrange_choices(WEB_CREATION_COURSE)
 
 for question in (
     [item for lesson in WEB_CREATION_COURSE["lessons"] for item in lesson["questions"]]

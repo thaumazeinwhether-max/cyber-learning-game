@@ -1,6 +1,7 @@
 """正式第8訓練の問題。SQLは画面上で読むだけでDBへ実行しない。"""
 
 from src.database_sql_chapters import CHAPTERS
+from src.choice_order import arrange_choices
 
 
 def choice(prompt, right, wrong1, wrong2, wrong3, explanation, source=None):
@@ -104,24 +105,14 @@ DATABASE_SQL_COURSE = {
         choice("ブラウザーの表示までの役割の組み合わせは？", "FlaskがDBへ問い合わせ、TemplateがHTMLを作る", "DBがブラウザーのHTMLを直接描く", "ブラウザーがDBの全権限を持つ", "CSSがSQLを採点する", "RouteのPython処理がDBを利用し、結果をTemplateへ渡します。"),
         true_false("ユーザー入力をSQL文字列へ直接連結するより、値を分けて渡す仕組みを使う。", "true", "パラメータ化クエリ等は値をSQL構造と分離します。"),
         choice("users(id=1, name='Alice')とposts(id=10, user_id=1)がある。正しい読み方は？", "投稿10は利用者Aliceを参照する", "投稿10自身の主キーは1", "利用者Aliceの主キーは10", "posts.user_idはHTML", "posts.user_idがusers.idを参照します。"),
-        choice("画面にid=1の名前を出したい。安全で目的に合う流れは？", "入力確認→値を安全にDBへ渡す→SELECT/WHERE→Template", "入力をSQLに直接連結→全行削除", "CSSだけでDB検索", "ブラウザーからDBへ直接接続", "アプリが入力を確認し、必要な行を安全に取得して表示します。"),
+        choice("フォームから受け取った利用者IDで本人の名前だけを表示する。Requestから表示まで適切な流れは？", "入力と閲覧権限を確認→固定したSELECT/WHEREへIDを値として渡す→Templateへ結果を渡す", "IDが整数なら権限確認を省き、SQL文字列へ直接連結する", "まず全行を取得してからブラウザー側だけで本人分を選ぶ", "WHEREを使う代わりにDBへ利用者IDを表名として渡す", "Requestの値と権限を確認し、WHEREの値はSQL構造と分離して渡し、結果だけを表示します。"),
     ],
 }
 
 for lesson in DATABASE_SQL_COURSE["lessons"]:
     lesson.update(CHAPTERS[lesson["id"]])
 
-for lesson_index, lesson in enumerate(DATABASE_SQL_COURSE["lessons"]):
-    for question_index, question in enumerate(lesson["questions"]):
-        offset = (lesson_index + question_index) % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
-
-for question_index, question in enumerate(DATABASE_SQL_COURSE["boss"]):
-    if "options" in question:
-        offset = question_index % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
+arrange_choices(DATABASE_SQL_COURSE)
 
 for question in (
     [item for lesson in DATABASE_SQL_COURSE["lessons"] for item in lesson["questions"]]

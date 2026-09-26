@@ -1,6 +1,7 @@
 """正式第4訓練。Webの要求・応答を章末まで通して確認する。"""
 
 from src.web_http_chapters import CHAPTERS
+from src.choice_order import arrange_choices
 
 
 def choice(prompt, options, answer, explanation):
@@ -115,13 +116,4 @@ WEB_HTTP_COURSE = {
 for lesson in WEB_HTTP_COURSE["lessons"]:
     lesson.update(CHAPTERS[lesson["id"]])
 
-for lesson_number, lesson in enumerate(WEB_HTTP_COURSE["lessons"]):
-    for question_number, question in enumerate(lesson["questions"]):
-        offset = (lesson_number + question_number) % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
-for question_number, question in enumerate(WEB_HTTP_COURSE["boss"]):
-    if "options" in question:
-        offset = question_number % 4
-        question["options"] = question["options"][offset:] + question["options"][:offset]
-        question["answer"] = (question["answer"] - offset) % 4
+arrange_choices(WEB_HTTP_COURSE)
