@@ -6,7 +6,8 @@ import threading
 from flask import Blueprint, current_app, jsonify, render_template, request, session
 
 from src.build_ai import ask_guide
-from src.build_ai_context import safe_history, secret_values
+from src.build_ai_context import redact, safe_history, secret_values
+from src.build_onboarding import parse_plan, validate_plan
 from src.build_preview import local_path, make_preview
 from src.build_runtime import DockerRuntime, runtime_status, validate_runtime_result
 from src.build_store import BuildStore, public_project
@@ -87,6 +88,7 @@ def capabilities():
 @build.get("/")
 def home():
     database = store()
+    onboarding = database.onboarding(session["build_owner"])
     projects = database.list_projects(session["build_owner"])
     if not projects:
         project = database.create(session["build_owner"], "わたしのアプリ")
@@ -96,10 +98,37 @@ def home():
         project = database.get(session["build_owner"], selected)
     session["build_project"] = project["id"]
     initial = {"project": public_project(project), "projects": projects,
-               "csrf": session["build_csrf"], "runtime": capabilities()}
+               "csrf": session["build_csrf"], "runtime": capabilities(), "onboarding": onboarding}
     return render_template("build.html", initial=initial,
                            ai_label=current_app.config["BUILD_AI_LABEL"],
                            ai_connected=current_app.config.get("BUILD_AI_PROVIDER") is not None)
+
+
+@build.post("/onboarding/plan")
+def onboarding_plan():
+    data = payload()
+    idea = data.get("idea")
+    if not isinstance(idea, str) or not idea.strip() or len(idea) > 1500:
+        raise ValueError("作りたいものを1〜1500文字で入力してください。")
+    project = get_project(session.get("build_project", ""))
+    reply = ask_guide(current_app.config.get("BUILD_AI_PROVIDER"), project, project["active_file"],
+                      idea.strip(), secrets=(current_app.secret_key, session["build_csrf"]), task="onboarding")
+    return jsonify(plan=parse_plan(reply["answer"]), mode=reply["mode"],
+                   status=reply["status"], notice=reply.get("notice", ""))
+
+
+@build.post("/onboarding/complete")
+def onboarding_complete():
+    data = payload()
+    if data.get("action") not in ("start", "skip"):
+        raise ValueError("開始またはスキップを選んでください。")
+    plan = {} if data["action"] == "skip" else validate_plan(data.get("plan"))
+    project = get_project(session.get("build_project", ""))
+    secrets_to_hide = secret_values(project, (current_app.secret_key, session["build_csrf"]))
+    plan = {key: redact(value, secrets_to_hide)[:1500] for key, value in plan.items()}
+    database = store()
+    database.finish_onboarding(session["build_owner"], plan)
+    return jsonify(onboarding=database.onboarding(session["build_owner"]))
 
 
 @build.post("/projects")

@@ -1,14 +1,18 @@
 """開発ナビゲーターの境界。未設定時は通信しないルール型ガイド。"""
 
 import logging
+import json
 
 from src.build_ai_context import make_context, redact, safe_history, secret_values
 from src.build_openai import GuideUnavailable
+from src.build_onboarding import local_plan, parse_plan
 
 class LocalGuide:
     mode = "ローカルガイド（生成AI未接続）"
 
     def reply(self, context, history, question):
+        if context.get("task") == "onboarding":
+            return json.dumps(local_plan(context, question), ensure_ascii=False)
         text = (question + " " + context["active_file"]).lower()
         code = context["code"]
         if any(word in text for word in ("エラー", "error", "動か", "syntax")):
@@ -48,17 +52,33 @@ class LocalGuide:
                 "理解できない質問には、目的と困っている箇所を具体的に書いてみてください。")
 
 
-def ask_guide(provider, project, active_file, question, preview=None, secrets=()):
+def safe_answer(answer, secrets, task):
+    if task == "onboarding":
+        if len(answer) > 24000:
+            raise ValueError("Guide response too long")
+        # JSONの引用符を秘密マスクで壊さないよう、解析後の各文字列へ適用する。
+        plan = parse_plan(answer)
+        return json.dumps({key: redact(value, secrets)[:1500] for key, value in plan.items()}, ensure_ascii=False)
+    return redact(answer, secrets)[:6000]
+
+
+def ask_guide(provider, project, active_file, question, preview=None, secrets=(), task="chat"):
     secrets = secret_values(project, secrets)
     context = make_context(project, active_file, preview, secrets)
     question = redact(question, secrets)[:1500]
     history = safe_history(project["chat"], secrets, count=6, per_message=800)
+    if task == "onboarding":
+        context["task"] = "onboarding"
+        # 初回の整理にはコード本文・実行ログ・過去の会話は不要。
+        context = {key: context[key] for key in ("task", "project_name", "files", "learn_topics")}
+        history = []
     guide = provider or LocalGuide()
     try:
         answer = guide.reply(context, history, question)
         if not isinstance(answer, str) or not answer.strip():
             raise ValueError("Empty guide response")
-        return {"answer": redact(answer, secrets)[:6000], "mode": guide.mode,
+        answer = safe_answer(answer, secrets, task)
+        return {"answer": answer, "mode": guide.mode,
                 "status": "generated" if provider else "local", "question": question}
     except Exception as error:
         reason = error.reason if isinstance(error, GuideUnavailable) else "provider"
@@ -69,6 +89,6 @@ def ask_guide(provider, project, active_file, question, preview=None, secrets=()
         notice = notices.get(reason, "AI接続を利用できませんでした。")
         logging.getLogger(__name__).warning("Build AI fallback: %s", reason if reason in notices else "provider")
         fallback = LocalGuide()
-        return {"answer": redact(fallback.reply(context, [], question), secrets)[:6000],
+        return {"answer": safe_answer(fallback.reply(context, [], question), secrets, task),
                 "mode": "ローカルガイド（AI接続失敗）", "status": "fallback",
                 "notice": notice + " ローカルガイドで案内します。", "question": question}

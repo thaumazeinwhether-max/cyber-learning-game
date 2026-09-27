@@ -1,5 +1,6 @@
 /* Buildの作業画面。Learnの教材や戦闘レイアウトには適用しない。 */
 .build-interface { font-size: 14px; }
+.build-interface [hidden] { display: none !important; }
 .build-shell { height: 100dvh; min-height: 640px; padding: 14px 18px 18px; display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); gap: 9px; }
 .build-header { display: flex; align-items: center; gap: 24px; padding-bottom: 10px; border-bottom: 1px solid var(--hud-line); }
 .build-header nav { font-size: 12px; color: var(--hud-muted); }
@@ -78,6 +79,28 @@
 .build-interface dialog input { display: block; width: 100%; margin-top: 8px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
 #dialog-error { color: #ffd0b5; font-size: 12px; }
+.build-interface #onboarding-dialog { width: min(820px, 94vw); max-height: 90dvh; overflow: auto; padding: 18px; box-shadow: 0 0 40px #33c6e51a; }
+.onboarding-header { display: flex; gap: 24px; align-items: center; margin-bottom: 12px; }
+.onboarding-header .ai-core { flex-shrink: 0; width: 72px; height: 72px; }
+.onboarding-header small { color: #9bdde7; font: 12px Consolas, monospace; letter-spacing: .12em; }
+.onboarding-header h2 { margin: 5px 0 8px; font-size: 21px; }
+.onboarding-header p { margin: 0; font-size: 14px; line-height: 1.8; }
+#onboarding-dialog label { display: block; color: #d4f4fc; font-size: 14px; }
+#onboarding-dialog textarea { display: block; width: 100%; margin: 7px 0; padding: 10px; min-height: 80px; resize: vertical; font: 14px/1.7 "Yu Gothic UI", sans-serif; }
+.onboarding-caption { margin: 8px 0 12px; color: #adc4d3; font-size: 12px; line-height: 1.7; }
+#onboarding-status { font-size: 13px; color: #abeee7; }
+#onboarding-proposal h3 { font-size: 17px; margin: 8px 0; }
+.onboarding-proposal-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.onboarding-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.onboarding-grid label { padding: 10px; border: 1px solid var(--hud-line); background: #06152280; }
+#onboarding-dialog .dialog-actions { margin-top: 10px; flex-wrap: wrap; }
+.onboarding-notes { max-height: 150px; overflow: auto; flex-shrink: 0; }
+.onboarding-notes p { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .onboarding-header { gap: 15px; align-items: flex-start; }
+  .onboarding-header .ai-core { display: none; }
+  .onboarding-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 1080px) {
   .build-shell { height: auto; min-height: 100dvh; }
   .build-header { flex-wrap: wrap; gap: 12px; }

@@ -25,6 +25,15 @@ DBはdata/app.sqlite3、任意pip installは未対応。RUNはGET /から開始�
 preview_reportはブラウザーの申告で、古いコードの実行結果の場合もある。revisionを見比べる。
 """
 
+ONBOARDING_INSTRUCTIONS = """
+今回はonboarding（初回のアイデア整理）。コード生成や完成仕様の決定はしない。
+返答はJSONオブジェクトのみ。purpose, features, learn, first_stepの4キーに日本語の文字列を入れる。
+各値は空でない1500文字以内。purposeは入力の目的を整理。featuresは少数の変更・削除可能な候補。
+未要求のログイン・ランキング・SNSなどを追加しない。learnは関係する訓練だけ、first_stepは
+存在するファイルのどこを自分で編集しSAVE/RUNするかという小さな一歩。コード自体は返さない。
+未知の題材は不明点を明示して汎用的なWeb画面から提案する。Phase 3の実装や長い計画はしない。
+"""
+
 
 class GuideUnavailable(Exception):
     """ブラウザーには固定の分類だけを返し、SDKの例外本文を渡さない。"""
@@ -58,7 +67,8 @@ class OpenAIGuide:
                         timeout=TIMEOUT_SECONDS, max_retries=0,
                         http_client=DefaultHttpxClient(trust_env=False)) as client:
                 response = client.responses.create(
-                    model=self.model, instructions=INSTRUCTIONS,
+                    model=self.model,
+                    instructions=INSTRUCTIONS + (ONBOARDING_INSTRUCTIONS if context.get("task") == "onboarding" else ""),
                     input=[{"role": "user", "content": content}],
                     max_output_tokens=MAX_OUTPUT_TOKENS, store=False, **options)
             if response.status != "completed" or not response.output_text.strip():

@@ -1,0 +1,32 @@
+{% if initial.onboarding.required %}
+<dialog id="onboarding-dialog" aria-labelledby="onboarding-title">
+  <header class="onboarding-header">
+    <div class="ai-core" aria-hidden="true"><i></i><b></b><span>◇</span></div>
+    <div><small>FIRST CONTACT / BUILD</small><h2 id="onboarding-title">{{ ai_label }}と、最初の一歩へ</h2>
+      <p id="onboarding-intro">作りたいものを整理し、Learnの知識を自分のアプリへつなげましょう。<br>コードを書くのはあなた。ここでは小さな出発点を一緒に考えます。</p></div>
+  </header>
+  <form id="onboarding-form">
+    <label for="onboarding-idea">何を作りたいですか？</label>
+    <textarea id="onboarding-idea" rows="3" maxlength="1500" required placeholder="誰のために、どんなことができるWebアプリを作りたいですか？"></textarea>
+    <p class="onboarding-caption">自由なアイデアを1500文字以内で。秘密情報・個人情報は入力しないでください。</p>
+    <p class="onboarding-caption">{% if ai_connected %}「アイデアを整理する」で入力・プロジェクト名・ファイル名・Learn索引をOpenAIへ送信します（API利用料あり）。接続失敗時はローカルガイドへ切り替えます。{% else %}ローカルガイドで整理します。外部通信は行いません。キーワードからの提案なので、意図と違う部分は自由に書き換えてください。{% endif %}</p>
+    <button class="button button-secondary" id="onboarding-organize" type="submit">アイデアを整理する</button>
+  </form>
+  <p id="onboarding-status" role="status" aria-live="polite"></p>
+  <section id="onboarding-proposal" hidden aria-label="アイデアの整理結果">
+    <div class="onboarding-proposal-heading"><h3>あなたの出発点</h3><button id="onboarding-revise" type="button" class="button button-secondary">アイデアを書き直す</button></div>
+    <p class="onboarding-caption">すべて提案です。候補は変更・削除できます。今、全部を実装する必要はありません。</p>
+    <div class="onboarding-grid">
+      <label for="plan-purpose">01 / アプリの目的<textarea id="plan-purpose" rows="3" maxlength="1500"></textarea></label>
+      <label for="plan-features">02 / 主要機能の候補<textarea id="plan-features" rows="3" maxlength="1500"></textarea></label>
+      <label for="plan-learn">03 / 関連するLearn<textarea id="plan-learn" rows="3" maxlength="1500"></textarea></label>
+      <label for="plan-first_step">04 / 最初に取り組む実装<textarea id="plan-first_step" rows="3" maxlength="1500"></textarea></label>
+    </div>
+    <p class="onboarding-caption">Flask・入力・保存から、必要に応じてSessionやログへ段階的に広げられます。将来の攻防学習にもつながります。</p>
+  </section>
+  <footer class="dialog-actions">
+    <button class="button button-secondary" type="button" id="onboarding-skip">スキップして開発を始める</button>
+    <button class="button" type="button" id="onboarding-start" hidden>この内容でBuildを始める</button>
+  </footer>
+</dialog>
+{% endif %}

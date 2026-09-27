@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='build.css') }}">
   <script src="{{ url_for('static', filename='build.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='build_onboarding.js') }}" defer></script>
 </head>
 <body class="hud-interface build-interface">
   <main class="build-shell">
@@ -68,6 +69,7 @@
         <p id="ai-mode" class="ai-mode" role="status">{% if ai_connected %}OpenAI 生成AI（質問時に接続）{% else %}ローカルガイド（生成AI未接続）{% endif %}</p>
         <details class="ai-privacy"><summary>AIへの送信内容（設定時はOpenAIへ送信）</summary><p>生成AI設定時は、質問・直近の会話・プロジェクト名・ファイル名一覧・編集中コードの一部・実行ログの一部をOpenAIへ送信します。API利用料が発生します。秘密情報や個人情報は入力しないでください。DB・Sessionは送りません。「次の一歩」はローカル処理です。</p></details>
         <section class="advice-box"><h3>次の一歩</h3><p id="advice">現在のファイルに合ったヒントを表示します。</p></section>
+        <details id="onboarding-notes" class="ai-privacy onboarding-notes" hidden><summary>はじめのアイデア（変更できる提案）</summary><div id="onboarding-notes-body"></div></details>
         <div id="chat-history" class="chat-history" role="log" aria-label="開発相談の履歴" aria-live="polite"></div>
         <p id="chat-status" class="chat-status" role="status"></p>
         <form id="chat-form" class="chat-form">
@@ -82,5 +84,6 @@
     <form id="name-form"><h2 id="dialog-title">新規ファイル</h2><label for="new-name" id="dialog-label">ファイル名</label><input id="new-name" required maxlength="120"><p id="dialog-error" role="alert"></p><div class="dialog-actions"><button type="button" id="cancel-dialog" class="button button-secondary">キャンセル</button><button class="button" type="submit">作成</button></div></form>
   </dialog>
   <script id="build-initial" type="application/json">{{ initial|tojson }}</script>
+  {% include '_build_onboarding.html' %}
 </body>
 </html>

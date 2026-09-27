@@ -51,6 +51,10 @@ class BuildStore:
                 runtime_secret TEXT NOT NULL, chat TEXT NOT NULL DEFAULT '[]',
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS build_onboarding (
+                owner TEXT PRIMARY KEY, completed INTEGER NOT NULL DEFAULT 0,
+                plan TEXT NOT NULL DEFAULT '{}'
+            )""")
 
     @contextmanager
     def connect(self):
@@ -67,8 +71,25 @@ class BuildStore:
             rows = db.execute("SELECT id, name FROM projects WHERE owner=? ORDER BY updated_at DESC, id", (owner,)).fetchall()
         return [dict(row) for row in rows]
 
+    def onboarding(self, owner):
+        with self.connect() as db:
+            # 初回判定と記録を同じトランザクションにする。既存利用者は案内済み扱い。
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("""INSERT OR IGNORE INTO build_onboarding (owner, completed)
+                VALUES (?, EXISTS(SELECT 1 FROM projects WHERE owner=?))""", (owner, owner))
+            row = db.execute("SELECT completed, plan FROM build_onboarding WHERE owner=?", (owner,)).fetchone()
+        return {"required": not bool(row["completed"]), "plan": json.loads(row["plan"])}
+
+    def finish_onboarding(self, owner, plan):
+        self.onboarding(owner)
+        with self.connect() as db:
+            # 二重送信や別タブの遅延したskipで、確認済みの提案を上書きしない。
+            db.execute("UPDATE build_onboarding SET completed=1, plan=? WHERE owner=? AND completed=0",
+                       (json.dumps(plan, ensure_ascii=False), owner))
+
     def create(self, owner, name):
         name = self.validate_name(name)
+        self.onboarding(owner)  # 最初のプロジェクト作成より先に、新規利用者を記録する。
         project_id = uuid.uuid4().hex
         with self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
