@@ -16,7 +16,8 @@ from src.build_runtime import container_command, validate_runtime_result
 from src.build_store import BuildStore
 
 
-@pytest.mark.parametrize("scenario", ["post_then_run", "changed_routes", "navigation", "save_only", "html_mode"])
+@pytest.mark.parametrize("scenario", ["post_then_run", "changed_routes", "navigation", "save_only", "html_mode",
+                                      "chat_flow", "chat_failure", "chat_rendering"])
 def test_run_button_and_preview_navigation(scenario):
     node = shutil.which("node")
     assert node, "Buildのブラウザー側回帰テストにはNode.jsが必要です。"
@@ -38,6 +39,7 @@ def workspace():
 @pytest.fixture
 def setup(workspace, monkeypatch):
     monkeypatch.delenv("BUILD_DOCKER_ENABLED", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     app = create_app(workspace)
     app.config["TESTING"] = True
     client = app.test_client()

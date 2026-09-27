@@ -6,6 +6,7 @@ import threading
 from flask import Blueprint, current_app, jsonify, render_template, request, session
 
 from src.build_ai import ask_guide
+from src.build_ai_context import safe_history, secret_values
 from src.build_preview import local_path, make_preview
 from src.build_runtime import DockerRuntime, runtime_status, validate_runtime_result
 from src.build_store import BuildStore, public_project
@@ -97,7 +98,8 @@ def home():
     initial = {"project": public_project(project), "projects": projects,
                "csrf": session["build_csrf"], "runtime": capabilities()}
     return render_template("build.html", initial=initial,
-                           ai_label=current_app.config["BUILD_AI_LABEL"])
+                           ai_label=current_app.config["BUILD_AI_LABEL"],
+                           ai_connected=current_app.config.get("BUILD_AI_PROVIDER") is not None)
 
 
 @build.post("/projects")
@@ -180,8 +182,11 @@ def chat(project_id):
         raise ValueError("質問は1〜1500文字で入力してください。")
     if not isinstance(active_file, str) or active_file not in project["files"]:
         raise ValueError("ファイルを選択してください。")
-    reply = ask_guide(current_app.config.get("BUILD_AI_PROVIDER"), project, active_file, question)
-    history = project["chat"] + [{"role": "user", "text": question}, {"role": "assistant", "text": reply["answer"]}]
+    secrets = secret_values(project, (current_app.secret_key, session.get("build_csrf", "")))
+    reply = ask_guide(current_app.config.get("BUILD_AI_PROVIDER"), project, active_file, question,
+                      preview=data.get("preview"), secrets=secrets)
+    safe_question = reply.pop("question")
+    history = safe_history(project["chat"], secrets) + [{"role": "user", "text": safe_question}, {"role": "assistant", "text": reply["answer"]}]
     store().save_chat(session["build_owner"], project_id, history)
     return jsonify(**reply, chat=history[-20:])
 

@@ -1,5 +1,10 @@
 """開発ナビゲーターの境界。未設定時は通信しないルール型ガイド。"""
 
+import logging
+
+from src.build_ai_context import make_context, redact, safe_history, secret_values
+from src.build_openai import GuideUnavailable
+
 class LocalGuide:
     mode = "ローカルガイド（生成AI未接続）"
 
@@ -43,18 +48,27 @@ class LocalGuide:
                 "理解できない質問には、目的と困っている箇所を具体的に書いてみてください。")
 
 
-def ask_guide(provider, project, active_file, question):
-    context = {
-        "project_name": project["name"], "active_file": active_file,
-        "code": project["files"].get(active_file, "")[:6000],
-    }
+def ask_guide(provider, project, active_file, question, preview=None, secrets=()):
+    secrets = secret_values(project, secrets)
+    context = make_context(project, active_file, preview, secrets)
+    question = redact(question, secrets)[:1500]
+    history = safe_history(project["chat"], secrets, count=6, per_message=800)
     guide = provider or LocalGuide()
     try:
-        answer = guide.reply(context, project["chat"][-10:], question)
+        answer = guide.reply(context, history, question)
         if not isinstance(answer, str) or not answer.strip():
             raise ValueError("Empty guide response")
-        return {"answer": answer[:6000], "mode": guide.mode}
-    except Exception:
+        return {"answer": redact(answer, secrets)[:6000], "mode": guide.mode,
+                "status": "generated" if provider else "local", "question": question}
+    except Exception as error:
+        reason = error.reason if isinstance(error, GuideUnavailable) else "provider"
+        notices = {"timeout": "AIの応答が時間内に届きませんでした。", "network": "AIに接続できませんでした。",
+                   "auth": "AIの認証設定を確認してください。", "rate_limit": "AIの利用上限に達しました。",
+                   "model": "AIモデル名・利用権限を確認してください。", "response": "AIの回答を取得できませんでした。",
+                   "context": "AIへ送る情報量が上限を超えました。"}
+        notice = notices.get(reason, "AI接続を利用できませんでした。")
+        logging.getLogger(__name__).warning("Build AI fallback: %s", reason if reason in notices else "provider")
         fallback = LocalGuide()
-        return {"answer": "AI接続を利用できないためローカルガイドで案内します。\n" + fallback.reply(context, [], question),
-                "mode": fallback.mode}
+        return {"answer": redact(fallback.reply(context, [], question), secrets)[:6000],
+                "mode": "ローカルガイド（AI接続失敗）", "status": "fallback",
+                "notice": notice + " ローカルガイドで案内します。", "question": question}

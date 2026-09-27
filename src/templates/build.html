@@ -65,9 +65,11 @@
           <div class="ai-core" aria-hidden="true"><i></i><b></b><span>◇</span></div>
           <strong>{{ ai_label }}</strong><small>開発ナビゲーター / 仮ラベル</small>
         </div>
-        <p id="ai-mode" class="ai-mode">ローカルガイド（生成AI未接続）</p>
+        <p id="ai-mode" class="ai-mode" role="status">{% if ai_connected %}OpenAI 生成AI（質問時に接続）{% else %}ローカルガイド（生成AI未接続）{% endif %}</p>
+        <details class="ai-privacy"><summary>AIへの送信内容（設定時はOpenAIへ送信）</summary><p>生成AI設定時は、質問・直近の会話・プロジェクト名・ファイル名一覧・編集中コードの一部・実行ログの一部をOpenAIへ送信します。API利用料が発生します。秘密情報や個人情報は入力しないでください。DB・Sessionは送りません。「次の一歩」はローカル処理です。</p></details>
         <section class="advice-box"><h3>次の一歩</h3><p id="advice">現在のファイルに合ったヒントを表示します。</p></section>
         <div id="chat-history" class="chat-history" role="log" aria-label="開発相談の履歴" aria-live="polite"></div>
+        <p id="chat-status" class="chat-status" role="status"></p>
         <form id="chat-form" class="chat-form">
           <label class="sr-only" for="chat-question">開発について質問</label>
           <textarea id="chat-question" rows="2" maxlength="1500" placeholder="フォームの入力を受け取るには？" required></textarea>

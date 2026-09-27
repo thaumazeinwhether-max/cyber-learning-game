@@ -62,6 +62,13 @@
 .chat-history { flex: 1; min-height: 70px; overflow: auto; padding: 0 10px; }
 .chat-message { font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; border-left: 2px solid #699baa; padding: 7px 9px; background: #0b263a; }
 .chat-message.user { border-left-color: #c5cbae; background: #233744; }
+.chat-message p { margin: 5px 0; white-space: pre-wrap; }
+.chat-message pre { padding: 8px; margin: 7px 0; overflow: auto; white-space: pre; font: 12px/1.65 Consolas, monospace; }
+.chat-message code { font: inherit; }
+.ai-privacy { margin: 0 10px 8px; font-size: 11px; color: #b8c9d1; }
+.ai-privacy summary { cursor: pointer; }
+.ai-privacy p { max-height: 100px; overflow: auto; line-height: 1.6; }
+.chat-status { margin: 4px 10px; font-size: 11px; line-height: 1.5; color: #b8dce7; }
 .chat-form { border-top: 1px solid var(--hud-line); padding: 9px 10px; display: flex; align-items: flex-end; gap: 6px; }
 .build-interface .chat-form textarea { min-width: 0; width: 100%; margin: 0; resize: vertical; min-height: 54px; max-height: 120px; padding: 7px; font-size: 12px; }
 .build-interface .chat-form button { font-size: 11px; padding: 7px; }

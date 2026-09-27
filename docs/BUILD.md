@@ -108,23 +108,97 @@ AI COREは仮ラベルで、`BUILD_AI_LABEL`設定で変更できる。CSSの同
 未対応の質問には一般的な案内を返す。利用者のコードを自動で書き換えない。
 チャットは最大20メッセージをプロジェクトへ保存し、再読み込み後も表示する。
 
-生成AIの認証情報は未設定。鍵を仮作成せず、外部API通信も実装していない。
-今後は`application.config["BUILD_AI_PROVIDER"]`へ、以下を持つオブジェクトを渡して差し替えられる。
+### OpenAI接続
+
+`OPENAI_API_KEY`環境変数があれば、`src/build_openai.py`の`OpenAIGuide`を起動時に登録する。
+公式Python SDK `openai>=2.54,<3`（確認バージョン2.54.0）の`client.responses.create`を使う。
+既定モデルは`gpt-5.6-terra`。公式にResponses対応・知能とコストのバランス型とされるため採用した。
+`BUILD_AI_MODEL`で変更可能。GPT-5/6系には`reasoning.effort=low`を指定し、対話の待ち時間を抑える。
+別モデルへの変更時は、そのモデルのResponses対応と利用権限を確認する。
+
+設定例はREADMEのPowerShell手順を参照。`.env`読込やキー入力Webフォームは追加していない。
+実キーは環境変数から読み、サーバープロセス内だけで利用する。キー未設定なら通信せずローカルガイド。
+送信先は`https://api.openai.com/v1`に固定し、`OPENAI_BASE_URL`や環境プロキシは利用しない。
+API障害時もLearn、保存、プレビューには依存させない。
+
+### 送信内容と制限
+
+送信は明示的なチャット質問時だけ。「次の一歩」・ファイル切替・SAVE・RUNはAPIを呼ばない。
+入力は固定の役割指示と、解析対象データを分ける。コードやログ内の命令を上位指示へ昇格させない。
+
+| 情報 | 上限・選択方法 |
+| --- | --- |
+| プロジェクト名 | 80文字 |
+| ファイル名 | 最大30件、各120文字。全ファイル本文は送らない |
+| 現在のファイル | ファイル名120文字、コード先頭6000文字。省略フラグ付き |
+| 実行情報 | 現在のモード、直近RUNのモード・HTTP status・保存revision、ログ末尾2000文字 |
+| 質問 | 1500文字 |
+| 会話 | 直近6メッセージ、各800文字。保存は引き続き20メッセージ |
+| Learn | 正式12訓練とUNIT見出しの索引、最大2800文字。教材本文・問題・進捗は送らない |
+| データ全体 | JSON化後24000文字を超えたら送信せずローカルガイド |
+| 出力 | 最大2400トークン（推論分を含む）、表示・保存は最大6000文字 |
+
+実行ログはブラウザーが直近結果を保持し、質問と同時に送る。DBには追加保存しない。
+コード修正後に未RUNの場合もあるため、現在の保存revisionと実行時revisionを分け、申告データと明記する。
+再読み込み直後はそのページでの最新RUN結果を使う。古いタブのログや改変された申告を検証済み事実とは扱わない。
+
+OpenAIの応答保存は`store=False`。これはサービス全体のログ保持をゼロにする設定ではない。
+生成AIの出力は検証済みコードではなく提案。本人が確認し、エディタへ反映してRUNする。
+
+### 機密情報とエラー処理
+
+`build_ai_context.py`で送信項目を許可リスト化する。実行用DB、Cookie、内部鍵、CSRFは項目に含めない。
+既知のAPIキー・Flask鍵・Build内部鍵・Session値・CSRFと、明白なキー代入・Bearer・秘密鍵を
+コード、ログ、質問、履歴からマスクする。回答とチャット保存にも同じマスクを適用する。
+元の編集コードは書き換えないため、利用者自身が秘密をコードへ書けば従来どおり保存対象になる。
+マスクは完全な秘密検出ではない。個人情報や独自形式の秘密も入力しないこと。
+
+SDKの通信timeoutは30秒、自動retryは0回。ブラウザーは40秒で待機を終了し、操作と質問文を戻す。
+通信timeoutはSDKの通信待ち制限であり、厳密な全処理時間の保証ではない。
+ブラウザー側の待機終了後にサーバーの回答保存が完了する場合は、再読み込みして履歴を確認する。
+認証・利用上限・モデル設定・通信失敗・timeout・不完全/空の応答は短い案内付きでローカルへ戻る。
+SDK例外本文を画面へ返さず、サーバーログには失敗分類だけを記録する。会話・コード・鍵はログ出力しない。
+
+Dockerのネットワーク遮断・マウント禁止・実行制限は変更していない。SDKはゲーム本体側だけで使用し、
+コンテナーのイメージには追加しない。APIキーをDockerの引数・標準入力・コンテナー環境へ渡さない。
+
+### provider境界と表示
+
+既存どおり`application.config["BUILD_AI_PROVIDER"]`へ以下のオブジェクトを渡して差し替えられる。
 
 ```python
 class GuideProvider:
     mode = "利用するAIサービスの表示名"
 
     def reply(self, context, history, question):
-        # context: project_name, active_file, code（最大6000文字）
-        # history: 直近10メッセージ。戻り値は回答の文字列。
+        # context: 上記許可項目だけの辞書。秘密除去・サイズ制限済み。
+        # history: 直近6メッセージ、各800文字。戻り値は回答の文字列。
         # APIキーは環境変数等から読み、ソースコードへ記述しない。
         # 通信時間制限を設け、失敗時は例外を返す。
         ...
 ```
 
-接続失敗時はローカルガイドへ戻る。将来外部プロバイダーを実装する際は、
-コードが外部へ送られることの表示、タイムアウト、費用と送信範囲の管理が別途必要。
+UIは3領域と円形COREを維持。PROCESSING・送信中・成功・fallback・通信失敗を表示する。
+送信中は二重送信を防ぎ、終了時に操作を戻す。回答HTMLは解釈しない。
+コードフェンスだけ`pre/code`に分け、本文もコードも`textContent`で描画する。一般MarkdownのHTML化は行わない。
+
+役割指示は、考え方→現在のコードで見る場所→次の操作→必要なら例の順に初心者を支援する。
+コードを求められたら具体的に支援し、見ていないファイルや実行結果を断言しない。
+ツール、自動編集、自動RUN、外部検索、Phase 3や自律エージェントは実装していない。
+
+### 少数回の実API確認
+
+キーを設定して再起動後、秘密を含まないサンプルプロジェクトで「フォームをFlaskで受け取りたい」と
+1回質問する。表示が`OpenAI 生成AI`となり、コードと関連する説明が返ることを確認する。
+必要なら、RUNで得たエラーについてもう1回だけ質問する。エラーの原因候補を参照できることを確認する。
+認証エラー時は権限とキー、モデルエラー時は`BUILD_AI_MODEL`を確認する。キーそのものはログに出さない。
+設定解除後はローカルガイドになる。通常pytestはSDKのHTTPをmock化し、実APIを呼ばない。
+
+参照した公式資料：
+[Responses API](https://developers.openai.com/api/reference/python/resources/responses/methods/create)、
+[公式SDK](https://developers.openai.com/api/docs/libraries)、
+[GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)、
+[テキスト生成と指示](https://developers.openai.com/api/docs/guides/text)。
 
 ## 開発者向け構成と確認
 
@@ -138,8 +212,12 @@ class GuideProvider:
 | `build_runtime/Dockerfile` | PythonとFlaskの専用イメージ |
 | `src/build_preview.py` | HTML再構築、CSP、フォーム・リンクの橋渡し |
 | `src/build_ai.py` | ガイドの差し替え境界とローカルガイド |
+| `src/build_openai.py` | 公式SDKのResponses API、役割指示、通信制限・エラー分類 |
+| `src/build_ai_context.py` | 送信項目・文字数の制限、秘密除去、Learn索引 |
 | `src/templates/build.html` / `src/static/build.*` | 3領域UI、textareaエディタ、保存・実行操作 |
 | `tests/test_build.py` | 保存、復元、隔離境界、プレビュー、ガイドの検証 |
+| `tests/test_build_ai.py` | 実通信しないSDKテスト、送信内容・fallback・保存の検証 |
+| `tests/build_run_checks.cjs` | 実際のJSによるRUN・チャットのイベント処理、安全な描画 |
 | `src/app.py`（変更） | Build Blueprintと設定の登録 |
 | `src/templates/index.html`（変更） | Buildへの入口。Attack & Defendは準備中 |
 | `tests/test_boss_replay.py`（変更） | トップの準備中表示が2個から1個になる期待値を更新 |
@@ -159,7 +237,7 @@ Dockerを設定した環境では、Flaskへ切り替えてフォーム送信、
 `node --check src/static/build.js`、`git diff --check`も成功。
 実ブラウザーの1280×720で3領域を同時表示し、HTML/CSS編集、保存、RUN、ファイル追加・切替、
 チャット、プロジェクト追加・切替、再読み込み、アプリ再起動後の復元を確認した。
-未設定のFlask処理を要求した場合は説明を表示する。外部生成AI接続は未検証・未設定。
+未設定のFlask処理を要求した場合は説明を表示する。
 
 RUNのURL初期化修正時の確認結果：全214 pytest成功（既存208件＋回帰6件）。
 `tests/build_run_checks.cjs`で実際の`build.js`を読み込み、RUN・保存・iframeメッセージの
@@ -169,6 +247,13 @@ RUNのURL初期化修正時の確認結果：全214 pytest成功（既存208件�
 旧ルートのない別アプリへの変更→RUN、GETリンク、POST→Redirect、SAVEのみで表示維持、HTML/CSSを確認した。
 再RUN・コード変更後もSession値3とSQLiteの3行が残ることを確認した。
 最初のDocker実行は既存の10秒制限に達したが、再実行以降は成功。隔離・実行制限は変更していない。
+
+生成AI接続追加時の確認結果：全241 pytest成功（既存214件＋AI関連27件）。
+SDK通信をMockTransportへ置換し、成功、認証、利用上限、不正モデル、timeout、接続失敗、応答異常、
+秘密除去、context上限、履歴、安全な表示、二重送信防止、DockerへAPIキーを渡さないことを検証した。
+実ブラウザーの1280×720で3領域を維持し、未設定時のローカル回答、模擬APIの待機・成功・fallback、
+コード例の表示、HTML文字列が要素にならないこと、履歴再読込を確認した。
+実際の認証付きOpenAI API呼び出しは、作業環境のAPIキー未設定により未実施。
 
 隔離方式の確認に参照した一次資料：
 [Dockerの実行制限](https://docs.docker.com/engine/containers/run/)、

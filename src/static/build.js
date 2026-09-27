@@ -7,6 +7,7 @@ let dirty = false;
 let busy = false;
 let previewToken = "";
 let dialogMode = "file";
+let lastRun = null;
 const byId = id => document.getElementById(id);
 const editor = byId("code-editor");
 const preview = byId("preview");
@@ -16,14 +17,20 @@ function message(text, error = false) {
   byId("workspace-message").classList.toggle("is-error", error);
 }
 
-async function api(url, data) {
-  const response = await fetch(url, {
-    method: "POST", headers: {"Content-Type": "application/json", "X-Build-CSRF": initial.csrf},
-    body: JSON.stringify(data), credentials: "same-origin"
-  });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.error || "処理できませんでした。再読み込みしてください。");
-  return result;
+async function api(url, data, timeoutMs = 0) {
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  try {
+    const response = await fetch(url, {
+      method: "POST", headers: {"Content-Type": "application/json", "X-Build-CSRF": initial.csrf},
+      body: JSON.stringify(data), credentials: "same-origin", ...(controller ? {signal: controller.signal} : {})
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "処理できませんでした。再読み込みしてください。");
+    return result;
+  } finally {
+    if (timer !== null) clearTimeout(timer);
+  }
 }
 
 function markDirty() {
@@ -73,9 +80,22 @@ function showSource() {
 function renderChat(history) {
   byId("chat-history").replaceChildren();
   for (const item of history) {
-    const text = document.createElement("p");
+    const text = document.createElement("div");
     text.className = `chat-message ${item.role === "user" ? "user" : "assistant"}`;
-    text.textContent = `${item.role === "user" ? "YOU" : "GUIDE"}\n${item.text}`;
+    const label = document.createElement("strong");
+    label.textContent = item.role === "user" ? "YOU" : "GUIDE";
+    text.append(label);
+    // HTMLは解釈しない。コードフェンスだけpre/codeへ分け、すべてtextContentで表示する。
+    const parts = item.text.split(/```[^\n]*\n([\s\S]*?)(?:```|$)/g);
+    parts.forEach((part, index) => {
+      const block = document.createElement(index % 2 ? "pre" : "p");
+      if (index % 2) {
+        const code = document.createElement("code");
+        code.textContent = part;
+        block.append(code);
+      } else { block.textContent = part; }
+      text.append(block);
+    });
     byId("chat-history").append(text);
   }
   byId("chat-history").scrollTop = byId("chat-history").scrollHeight;
@@ -97,6 +117,7 @@ function setBusy(value) {
   for (const id of ["save", "run", "projects", "new-project", "add-file", "send-chat", "run-mode"]) byId(id).disabled = value;
   editor.readOnly = value;
   byId("project-name").readOnly = value;
+  byId("chat-question").readOnly = value;
 }
 
 async function save() {
@@ -124,6 +145,7 @@ async function run(path = "/", method = "GET", data = {}) {
     const result = await api(`/build/projects/${project.id}/run`, {
       revision: project.revision, mode, entry, path, method, data
     });
+    lastRun = {mode, revision: project.revision, status: result.status, logs: (result.logs || "").slice(-4000)};
     previewToken = result.token;
     preview.srcdoc = result.document;
     byId("run-log").textContent = result.logs || "リクエストを処理しました。";
@@ -131,6 +153,7 @@ async function run(path = "/", method = "GET", data = {}) {
     byId("preview-path").value = path;
     message(result.status >= 400 ? "実行結果にエラーがあります。ログを確認してください。" : "保存したコードをプレビューへ反映しました。", result.status >= 400);
   } catch (error) {
+    lastRun = {mode: byId("run-mode").value, revision: project.revision, status: null, logs: error.message.slice(-4000)};
     byId("response-status").textContent = "ERROR";
     byId("run-log").textContent = error.message;
     message(error.message, true);
@@ -218,16 +241,32 @@ byId("chat-form").addEventListener("submit", async event => {
   const question = byId("chat-question").value.trim();
   if (!question) return;
   setBusy(true);
+  byId("ai-mode").textContent = "PROCESSING / 回答を準備しています…";
+  byId("chat-status").textContent = "送信中です。しばらくお待ちください。";
+  byId("chat-form").setAttribute("aria-busy", "true");
   document.querySelector(".ai-panel").classList.add("is-thinking");
   try {
     if (dirty) await save();
-    const result = await api(`/build/projects/${project.id}/chat`, {question, active_file: project.active_file});
+    const result = await api(`/build/projects/${project.id}/chat`, {
+      question, active_file: project.active_file,
+      preview: {mode: byId("run-mode").value, last_run: lastRun}
+    }, 40000);
     project.chat = result.chat;
     renderChat(result.chat);
     byId("ai-mode").textContent = result.mode;
+    byId("chat-status").textContent = result.notice || "回答しました。コードへの反映は自分で行えます。";
     byId("chat-question").value = "";
-  } catch (error) { message(error.message, true); }
-  finally { setBusy(false); document.querySelector(".ai-panel").classList.remove("is-thinking"); }
+  } catch (error) {
+    byId("ai-mode").textContent = "送信失敗";
+    byId("chat-status").textContent = error.name === "AbortError"
+      ? "応答待ちを終了しました。質問は残しています。少し待って再読み込みし、履歴を確認してください。"
+      : "質問を送信できませんでした。質問は残しています。接続を確認してください。";
+  }
+  finally {
+    setBusy(false);
+    byId("chat-form").setAttribute("aria-busy", "false");
+    document.querySelector(".ai-panel").classList.remove("is-thinking");
+  }
 });
 
 for (const item of initial.projects) {

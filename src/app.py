@@ -5,6 +5,7 @@ from flask import Flask, render_template, session
 
 from src.learn_routes import learn
 from src.build_routes import build
+from src.build_openai import configured_provider
 from src.session_key import load_session_key
 
 
@@ -18,6 +19,7 @@ def create_app(instance_path=None):
     application.config.update(
         BUILD_DOCKER_ENABLED=os.environ.get("BUILD_DOCKER_ENABLED") == "1",
         BUILD_AI_LABEL="AI CORE",
+        BUILD_AI_PROVIDER=configured_provider(),
     )
     application.register_blueprint(build)
 

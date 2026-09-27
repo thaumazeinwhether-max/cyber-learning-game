@@ -81,11 +81,34 @@ Learnフェーズで身につけた知識を使い、自分の仮想システム
 トップの「開発ラボへ」から、複数ファイルのコード編集、SAVE、RUN、同じ画面でのプレビュー、開発相談ができます。
 標準ではHTML/CSSを描画します。Python・Jinja・SQL・利用者のJavaScriptは実行せず、編集・保存できます。
 Flaskの実行には別途DockerのLinuxコンテナーと専用イメージが必要で、未設定時は明示して無効にします。
-この開発環境ではDockerがなく、実コンテナーでの確認は未実施です。
+Dockerを使ったGET・POST・Redirect・Session・SQLite・再RUNの実機確認済みです。
 
 コード・作業位置・チャットは `instance/build.sqlite3` に保存し、同じブラウザーで再起動後も再開できます。
 AI COREは仮ラベルです。生成AI未接続時は、Learnと現在の作業をつなぐローカルガイドが応答します。
 実行範囲、安全上の制約、Docker設定、保存の仕組みは [docs/BUILD.md](docs/BUILD.md) を参照してください。
+
+### OpenAI開発ナビゲーター（任意）
+
+公式Python SDKのResponses APIを利用します。キー未設定でもLearn・Build・ローカルガイドは動作します。
+有効時は「質問する」を押すと、質問・編集中コードの一部・ファイル名一覧・直近の会話と実行ログを
+OpenAIへ送信します。API利用料が発生します。秘密情報・個人情報は入力しないでください。
+AIは助言・コード例だけを返し、自動編集・自動RUNは行いません。
+
+PowerShellで、起動するターミナルの環境変数を設定します。キーを履歴に直接書かない入力例です。
+
+```powershell
+python -m pip install --user -r requirements.txt
+$buildApiKey = Read-Host "OpenAI API key" -AsSecureString
+$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new("", $buildApiKey).Password
+Remove-Variable buildApiKey
+$env:BUILD_AI_MODEL = "gpt-5.6-terra"
+python -m src.app
+```
+
+`OPENAI_API_KEY`はサーバー側の認証、`BUILD_AI_MODEL`はモデル選択（省略時も`gpt-5.6-terra`）です。
+設定変更後はアプリを再起動します。無効化は停止後に`Remove-Item Env:OPENAI_API_KEY`を実行します。
+`.env`の自動読込は行いません。キーをコード・Git・Buildのエディタへ貼り付けないでください。
+送信上限・エラー時の動作・実APIの少数回確認手順は [docs/BUILD.md](docs/BUILD.md) を参照してください。
 
 ## Learnフェーズの遊び方
 
