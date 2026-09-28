@@ -1,204 +1,218 @@
 # Cyber Learning Game
 
-IT・Python・システム開発・サイバーセキュリティを、ゲームを通じて段階的に学ぶことを目的とした学習ゲームです。
-
-現在は開発初期段階です。
-
-## Concept
-
-本作品では、学習を次の3フェーズで進めます。
-
-### 1. Learn
-
-ITやPythonの基礎をゲーム形式で学びます。
-
-主な学習候補：
-
-* コンピュータ基礎
-* ネットワーク基礎
-* Linux基礎
-* Web基礎
-* データベース基礎
-* Python基礎
-* サイバーセキュリティ基礎
-
-### 2. Build
-
-Learnフェーズで身につけた知識を使い、自分の仮想システムやWebページを構築します。
-
-「守る対象がどのように作られているのか」を、自分で作ることで理解することを目指します。
-
-### 3. Attack & Defend
-
-自分の仮想システムを仮想敵の攻撃から防御したり、ゲーム内またはローカルの演習専用環境に用意された仮想敵システムを調査したりします。
-
-攻撃と防御の両方の視点から、サイバーセキュリティを実践形式で学びます。
-
-## Core Idea
-
-**Learn → Build → Attack & Defend**
+IT・Python・Web開発・サイバーセキュリティを、
+**Learn → Build → Attack & Defend** の3フェーズで段階的に学ぶ学習ゲームです。
 
 単に知識を暗記するのではなく、
 
 1. 基礎を学ぶ
-2. 自分で使う
-3. 攻防の中で応用する
+2. 自分でWebアプリを作る
+3. 攻撃と防御の両方を実践する
 
-という流れを重視します。
+という流れで、知識を実際の操作へつなげることを目的としています。
 
-## Development Style
+---
 
-本プロジェクトは、バイブコーディングによって段階的に開発します。
+## Concept
 
-最初から完成形を固定せず、
+### 1. Learn
 
-* 小さく作る
-* 実際に動かす
-* 遊ぶ
-* 改善点を見つける
-* 機能を追加する
+IT・Python・Web・データベース・セキュリティ・監視などを、教材と戦闘形式の問題演習で学びます。
 
-というサイクルを繰り返します。
+正式カリキュラムとして第1〜12訓練を実装しています。
+
+主な学習分野：
+
+- コンピュータ・OS
+- Python
+- ネットワーク
+- Web・HTTP
+- HTML / CSS / JavaScript
+- Flask
+- データベース / SQL
+- Git / 開発
+- セキュリティ
+- Webセキュリティ
+- 監視・インシデント対応
+
+各訓練では教材を読んだ後、通常戦とBOSS戦に挑戦します。
+
+---
+
+### 2. Build
+
+Learnで学んだ知識を使い、実際に小規模なWebアプリを作る開発フェーズです。
+
+主な機能：
+
+- 複数ファイルのコード編集
+- SAVE / RUN
+- 同一画面でのライブプレビュー
+- Flaskアプリ実行
+- GET / POST / Redirect
+- SQLite
+- Session
+- 実行ログ
+- Dockerによる隔離実行
+- Local Guideによる開発支援
+- 初回オンボーディング
+
+初回利用時にはAI COREが「何を作りたいか」を確認し、
+
+- アプリの目的
+- 主要機能候補
+- 関連するLearn
+- 最初の実装ステップ
+
+を整理します。
+
+OpenAI APIは任意で、APIキー未設定でもLocal Guideで利用できます。
+
+詳細は [docs/BUILD.md](docs/BUILD.md) を参照してください。
+
+---
+
+### 3. Attack & Defend
+
+Buildで作ったWebアプリや、ゲーム内に用意された仮想Webアプリを使って、攻撃と防御を実践します。
+
+#### Attack
+
+- 常に3つの仮想ターゲットを表示
+- 1つを選んで攻略
+- 実際のHTTP操作や応答確認を行う
+- 攻略後は新しい対象を補充
+- Easy / Normal / Hard に対応
+
+#### Defend
+
+- Phase 2で作成したWebアプリの隔離コピーを利用
+- 仮想攻撃を受ける
+- ログや挙動を確認
+- 防御対応を行う
+- 成功・失敗を判定
+- 失敗時は改善の考え方を表示
+
+難易度は次の3段階です。
+
+- **Easy**：Local Guideによる補助あり
+- **Normal**：補助なし
+- **Hard**：Attackは高難度、Defendは表示中に不定時攻撃
+
+すべてゲーム内・ローカルの隔離環境で実行し、実在サイトや第三者システムは対象にしません。
+
+詳細は [docs/ATTACK_DEFEND.md](docs/ATTACK_DEFEND.md) を参照してください。
+
+---
 
 ## Security Policy
 
-本作品はサイバーセキュリティ教育を目的としています。
+本作品はサイバーセキュリティ学習を目的としています。
 
-攻撃・侵入・スキャン等を扱う場合、対象は以下に限定します。
+攻撃・防御演習の対象は以下に限定します。
 
-* ゲーム内部の仮想システム
-* 開発者自身のローカル環境
-* 明示的に演習目的として用意された環境
+- ゲーム内部の仮想システム
+- Phase 2で作成したWebアプリの隔離コピー
+- 開発者自身のローカル演習環境
 
-実在する第三者のシステムやネットワークを無許可で攻撃するための機能は対象としません。
+第三者のシステムやネットワークへの無許可アクセスを目的とした機能は実装しません。
 
-## Status
+Docker sandboxでは、以下の制約を設けています。
 
-正式カリキュラムの第1〜12訓練、Build開発ラボ、Attack & Defendの初期版を実装済みです。
+- 外部ネットワーク遮断
+- 非root実行
+- read-only root filesystem
+- tmpfs
+- CPU / メモリ / プロセス数制限
+- 実行時間制限
+- Docker socket非公開
+- ホストフォルダ非共有
 
-## Attack & Defendの使い方
+---
 
-トップの「攻防演習へ」から、架空サービスへのHTTP操作とBuildアプリの隔離コピーを使った防御演習ができます。
-実行にはBuildと同じDocker環境と `$env:BUILD_DOCKER_ENABLED = "1"` が必要です。
-EasyはLocal Guideあり、Normalは支援なし、Hardは複数段階の攻略と表示中の不定時攻撃です。
-各難易度4件のAttack定義、2テーマのDefendを用意しています。OpenAI APIは使いません。
-コピーへの操作は元のBuildコード・DB・Session・チャットへ書き戻しません。
-起動、安全境界、シナリオ追加方法は [docs/ATTACK_DEFEND.md](docs/ATTACK_DEFEND.md) を参照してください。
+## Current Status
 
-## Buildフェーズの使い方
+現在、3フェーズすべての初期版を実装済みです。
 
-トップの「開発ラボへ」から、複数ファイルのコード編集、SAVE、RUN、同じ画面でのプレビュー、開発相談ができます。
-標準ではHTML/CSSを描画します。Python・Jinja・SQL・利用者のJavaScriptは実行せず、編集・保存できます。
-Flaskの実行には別途DockerのLinuxコンテナーと専用イメージが必要で、未設定時は明示して無効にします。
-Dockerを使ったGET・POST・Redirect・Session・SQLite・再RUNの実機確認済みです。
+- **Phase 1 Learn：初期完成**
+- **Phase 2 Build：初期完成**
+- **Phase 3 Attack & Defend：基盤初期完成**
 
-コード・作業位置・チャットは `instance/build.sqlite3` に保存し、同じブラウザーで再起動後も再開できます。
-AI COREは仮ラベルです。生成AI未接続時は、Learnと現在の作業をつなぐローカルガイドが応答します。
-Buildを初めて開くと、AI COREが「何を作りたいですか？」を案内します。自由入力から目的・機能候補・
-関連Learn・最初の一歩を整理し、内容を編集してBuildへ進めます。コードは自動変更しません。
-スキップも可能で、完了・スキップ後は同じブラウザーで再表示しません。既存プロジェクトがある利用者も
-通常画面へ直接入ります。確認した案はAI COREの「はじめのアイデア」で見直せます。
-実行範囲、安全上の制約、Docker設定、保存の仕組みは [docs/BUILD.md](docs/BUILD.md) を参照してください。
+テスト状況：
 
-### OpenAI開発ナビゲーター（任意）
+- **通常回帰 + 実Docker = 330 tests passed**
 
-公式Python SDKのResponses APIを利用します。キー未設定でもLearn・Build・ローカルガイドは動作します。
-有効時は「質問する」を押すと、質問・編集中コードの一部・ファイル名一覧・直近の会話と実行ログを
-OpenAIへ送信します。API利用料が発生します。秘密情報・個人情報は入力しないでください。
-初回ガイドの「アイデアを整理する」でも、入力・プロジェクト名・ファイル名・Learn索引を送信します。
-初回ガイドはキー未設定時もローカルで使えます。
-AIは助言・コード例だけを返し、自動編集・自動RUNは行いません。
+今後はPhase 3のシナリオ数を増やし、内容を拡充していく予定です。
 
-PowerShellで、起動するターミナルの環境変数を設定します。キーを履歴に直接書かない入力例です。
+---
 
-```powershell
-python -m pip install --user -r requirements.txt
-$buildApiKey = Read-Host "OpenAI API key" -AsSecureString
-$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new("", $buildApiKey).Password
-Remove-Variable buildApiKey
-$env:BUILD_AI_MODEL = "gpt-5.6-terra"
-python -m src.app
-```
+## Tech Stack
 
-`OPENAI_API_KEY`はサーバー側の認証、`BUILD_AI_MODEL`はモデル選択（省略時も`gpt-5.6-terra`）です。
-設定変更後はアプリを再起動します。無効化は停止後に`Remove-Item Env:OPENAI_API_KEY`を実行します。
-`.env`の自動読込は行いません。キーをコード・Git・Buildのエディタへ貼り付けないでください。
-送信上限・エラー時の動作・実APIの少数回確認手順は [docs/BUILD.md](docs/BUILD.md) を参照してください。
+- Python
+- Flask
+- HTML
+- CSS
+- JavaScript
+- SQLite
+- Docker
+- pytest
+- Git / GitHub
 
-## Learnフェーズの遊び方
+---
 
-トップページの「サイバー防衛学校へ」から正式カリキュラムを選べます。第1「コンピュータ・OS基礎」→第2「Python基礎Ⅰ」→第3「ネットワーク基礎」→第4「Web・HTTP基礎」→第5「Python基礎Ⅱ」→第6「Web制作基礎」→第7「Flask・Webアプリ基礎」→第8「データベース・SQL基礎」→第9「Git・開発基礎」→第10「セキュリティ基礎」→第11「Webセキュリティ基礎」→第12「監視・インシデント対応基礎」の順に、前の訓練のBOSSを満点で撃破すると次が解放されます。第12BOSSは第12訓練の章末問題であり、撃破するとLearnフェーズ修了を表示します。既存のIT基礎・Python基礎コースも「初期版コース」として引き続き遊べます。
+## Getting Started
 
-正式な第1訓練は「コンピュータの基本構成 → OS → ファイル・フォルダ・拡張子 → パス → プログラムとプロセス → GUI・CLI・ターミナル」の6 UNITです。教材本文は参考書の節として、学習目標、前のUNITとの接続、定義、比較、処理の流れ、具体例、誤解、要点を順に読めます。各UNITは教材、4択の通常戦6問、結果判定の順に進みます。1回の挑戦で6問すべてに正解するとUNITを修了し、次のUNITが解放されます。6 UNIT修了後にHP14・14問の「SYSTEM CORE」と戦えます。BOSSも1問1回答で、14問すべて正解した場合だけ撃破・訓練修了です。
-
-第2訓練はPythonの基本からif/elif/elseまで10 UNIT、各4問の通常戦と12問・HP12のコードレビューBOSSです。コード回答は実行せず、Python ASTの構造を正解例と比較します。引用符や空白の違い、問題に登録した同等の書き方を受け入れます。
-
-第3訓練はLAN/WAN、IP、ルーター、ゲートウェイ、DNS、ポート、TCP/UDPから通信全体の流れまで10 UNIT、第4訓練はWebとクライアント/サーバーからURL、HTTP、GET/POST、ステータス、Cookie/Session、画面表示まで10 UNITです。いずれも各UNIT4問の4択通常戦、14問・HP14の総合BOSSです。各問は1回だけ回答し、正誤と解説を読んでから次問へ進みます。UNIT・BOSSとも1回の挑戦で全問正解した場合のみ修了できます。
-
-第5訓練はfor/while、list/dict、関数、import、例外、デバッグを10 UNITで学びます。通常戦は各4問のコード記述、BOSSは14問・HP14のコードレビューです。第6訓練はHTML、form、CSS、JavaScript、DOMを10 UNITで学び、各4問の4択通常戦と14問・HP14のBOSSでコード読解を確認します。第7訓練はFlaskの初期化からRoute、Template、Jinja、Static、Request、Session、テストまで12 UNITです。通常戦は各4問（Session・環境変数・設定値UNITのみ5問）のコード記述と4択を混ぜ、BOSSは14問・HP14のコードレビューと構造理解問題です。
-
-第8訓練はデータベース・SQLの10 UNIT（各4問、BOSS 14問）、第9訓練はGit・開発の11 UNIT（各4問、BOSS 14問）です。SQLとGitコマンドは教材と読解問題として表示し、アプリから実データベース操作やGitコマンド実行は行いません。
-
-第10訓練はCIA、脅威・弱点・リスク、認証・認可、ハッシュ・暗号化、権限、更新・復旧、多層防御を11 UNITで学びます。第11訓練は入力、DB、Session、出力、CSRF、エラーとログを11 UNITで学び、安全なWebアプリ設計を判断します。第12訓練は正常状態からログ・監視、初動、封じ込め、復旧、再発防止まで11 UNITです。各UNITの通常戦は4問。第10・11のBOSSは各15問・HP15、第12のBOSSは第12訓練のみを扱う16問・HP16です。いずれも一度の挑戦で全問正解した場合だけ修了します。
-
-正式訓練の本文は各訓練の `src/*_chapters.py`、問題は対応する `src/*_data.py` にあります。本文の `sections` 内に `paragraph`、`bullets`、`table`、`code`、`flow`、`note`、`warning`、`key_points` のブロックを並べ、共通テンプレートで表示します。第10〜12訓練は `src/security_curriculum_helpers.py` で同じ教材構造と4択問題の表示データを組み立てます。
-
-既存の初期版コースは次の順で進みます。
-
-**訓練選択 → 短い教材 → 通常戦 → 訓練クリア → 次の訓練または訓練選択 → 3単元修了 → ボス戦 → コース修了**
-
-各コースの最初のUNITまたは訓練から挑戦できます。通常戦は各問題に1回回答し、正解・不正解と解説を読んでから次の問題へ進みます。満点なら修了して次が解放されます。満点未満なら解放されず、教材を読み直すか、得点をリセットして全問を最初から再挑戦できます。クリア後は自動で次へ進まず、次のUNIT・訓練か訓練選択画面を選べます。
-
-IT通常戦は4択、ITボス戦は正誤判断・用語記述・応用問題です。Python通常戦はコード記述、Pythonボス戦はコードの正誤判断と修正です。BOSSでも回答後に正解と解説を読み、次問へ進みます。不正解があっても最後まで解き、満点未満なら教材を読み直すかBOSS全問を再挑戦します。入力されたPythonコードは実行せず、構文を比較します。
-
-通常戦は1 UNITにつき1体の訓練ドローン、BOSS戦は大型ロボットを表示します。敵HPの初期値は問題数で、正解すると1減り、不正解では減りません。攻撃・被弾・撃破はCSSによる短い表示演出です。採点と満点のクリア条件はサーバー側で判定します。動きが苦手な場合は、OSやブラウザーの「動きを減らす」設定でアニメーションを無効にできます。
-
-アプリトップ・Learn・Buildは、暗い訓練端末をイメージした共通HUD UIです。背景のグリッド、シアンの境界線、教材カードや戦闘表示はCSSで描いています。Attack & Defendはトップ画面で準備中と表示します。共通テーマは `src/static/style.css`、Build専用の配置は `src/static/build.css` で調整できます。
-
-BOSS撃破後も訓練選択または修了画面から「BOSSに再挑戦」できます。再挑戦は第1問・満タンHPから始まり、今回失敗しても過去の訓練修了と次訓練の解放は維持されます。第12訓練の再挑戦でも「LEARN PHASE COMPLETE」は取り消されません。
-
-進捗はブラウザーの署名付きCookieに保存します。署名鍵は環境変数 `FLASK_SECRET_KEY` を優先し、未設定ならGit管理外の `instance/learn_secret_key` に初回起動時に生成して再利用します。同じブラウザーではFlaskを再起動しても進捗を読み戻せます。Cookieの期限は最終利用から約90日です。ブラウザーのCookieや鍵ファイルを削除すると進捗は失われます。アカウント間・端末間の同期機能はありません。共有・公開環境で運用する際は、十分長い `FLASK_SECRET_KEY` を環境変数で設定してください。
-
-現在遊べる正式訓練は第1〜12訓練です。第12修了状態は既存の署名付きsessionへ保存し、Learnトップと修了画面に「LEARN PHASE COMPLETE」を表示します。既存のIT・Pythonコースは初期実装です。Phase 1全体の正式な学習範囲と出題方針は [`docs/LEARN_CURRICULUM.md`](docs/LEARN_CURRICULUM.md) を参照してください。
-
-## 起動方法
-
-Pythonをインストールしたうえで、プロジェクトのルートで実行します。
+### 1. 依存関係をインストール
 
 ```powershell
 python -m pip install --user -r requirements.txt
+
+2. Dockerを使う場合
+
+BuildおよびAttack & DefendのFlask実行にはDocker環境を使用します。
+
+docker build -t cyber-build-runtime:1 ./build_runtime
+$env:BUILD_DOCKER_ENABLED = "1"
+3. アプリ起動
 python -m src.app
-```
 
-ブラウザーで `http://127.0.0.1:5000/` を開いてください。停止するときはターミナルで `Ctrl+C` を押します。
+ブラウザーで次を開きます。
 
-テストは次のコマンドで実行できます。
+http://127.0.0.1:5000/
 
-```powershell
+停止するときはターミナルで Ctrl+C を押します。
+
+Tests
+
+通常テスト：
+
 python -m pytest
-```
 
-### 開発用ショートカット
+Docker実機テストを含む詳細な確認方法は各ドキュメントを参照してください。
 
-問題の動作確認を素早く行う場合だけ、PowerShellで起動前に環境変数を設定します。
+Documentation
+Project Brief
+Learn Curriculum
+MVP v0.1
+Build
+Attack & Defend
+AGENTS.md
+Development Style
 
-```powershell
-$env:LEARN_DEV_SHORTCUT = "1"
-python -m src.app
-```
+本プロジェクトは、バイブコーディングを活用しながら段階的に開発しています。
 
-このときだけ問題画面に `DEV MODE` と「開発用：この問題を正解扱いにする」が表示されます。通常の正解と同じように敵撃破やボスHP減少が進みます。無効に戻すには、同じPowerShellで `Remove-Item Env:LEARN_DEV_SHORTCUT` を実行してください。未設定または `0` では表示も操作もできません。
+最初から完成形を固定せず、
 
-## Documentation
+小さく作る
+動かす
+遊ぶ
+テストする
+改善する
 
-詳細な企画方針は以下を参照してください。
+というサイクルを繰り返しています。
 
-* `docs/PROJECT_BRIEF.md`
-* `docs/LEARN_CURRICULUM.md`
-* `docs/MVP_V0_1.md`
-* `docs/BUILD.md`
-* `AGENTS.md`
+Learn、Build、Attack & Defendを独立した機能にせず、学習内容が次のフェーズへつながる設計を重視しています。
 
-## License
+License
 
 未定
