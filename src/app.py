@@ -5,6 +5,7 @@ from flask import Flask, render_template, session
 
 from src.learn_routes import learn
 from src.build_routes import build
+from src.arena_routes import arena
 from src.build_openai import configured_provider
 from src.session_key import load_session_key
 
@@ -22,6 +23,7 @@ def create_app(instance_path=None):
         BUILD_AI_PROVIDER=configured_provider(),
     )
     application.register_blueprint(build)
+    application.register_blueprint(arena)
 
     @application.before_request
     def keep_progress_after_browser_close():

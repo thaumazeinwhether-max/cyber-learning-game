@@ -1,5 +1,8 @@
 # MVP v0.1
 
+> Phase 3の最新の初期実装は [ATTACK_DEFEND.md](ATTACK_DEFEND.md) を参照する。
+> 以下の仮想ミッション案を発展させ、Build共通Docker内の実HTTP処理と隔離コピーを使用する。
+
 > この文書は小規模に動かして検証する初期MVPの範囲を定める。Phase 1全体の正式な12訓練と出題方針は [`LEARN_CURRICULUM.md`](LEARN_CURRICULUM.md) を参照する。以下の4テーマとMVP完成条件は、正式カリキュラム全体の修了条件ではない。
 
 ## 1. 目的

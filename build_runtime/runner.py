@@ -24,8 +24,9 @@ class LimitedLog(io.StringIO):
         return len(text)
 
 
-def main(root=Path("/workspace")):
-    bundle = json.loads(sys.stdin.buffer.read(4_000_000))
+def main(root=Path("/workspace"), bundle=None):
+    if bundle is None:
+        bundle = json.loads(sys.stdin.buffer.read(4_000_000))
     for name, code in bundle["files"].items():
         target = root / name
         if not target.resolve().is_relative_to(root) or name.startswith("data/"):

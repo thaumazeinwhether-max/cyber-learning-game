@@ -1,0 +1,37 @@
+/* Phase 3だけに適用する共通HUDの作業レイアウト。 */
+.arena-shell { max-width: 1320px; margin: auto; padding: 20px; }
+.arena-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 5; background: #071727f5 !important; padding: 12px 18px; }
+.arena-header h1 { font: 600 24px Consolas, monospace; letter-spacing: .1em; margin: 6px 0; }
+.arena-header nav, .arena-caption { font-size: 12px; color: var(--hud-muted); }
+.arena-interface [hidden] { display: none !important; }
+.arena-interface h2 { font-size: 20px; }
+.arena-interface h2 small { font-size: 12px; color: var(--hud-muted); font-weight: normal; }
+.arena-interface h3 { font-size: 15px; color: #a2edff; }
+.arena-interface .button { margin: 5px 0; padding: 8px 14px; font-size: 14px; }
+.arena-interface button:disabled { opacity: .45; cursor: not-allowed; }
+.arena-interface button[aria-pressed="true"] { border-color: #e1ffff; background: #91e6fa; color: #061321; }
+.difficulty-bar, .arena-tabs { display: flex; flex-wrap: wrap; gap: 10px; }
+.target-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.target-grid .panel { border-top: 2px solid #80dfee; }
+.target-grid h3 { font-size: 19px; }
+.target-grid p { min-height: 48px; }
+.arena-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px; }
+.arena-interface label { display: block; font-size: 14px; margin: 10px 0 5px; }
+.arena-interface textarea, .arena-interface input, .arena-interface select { width: 100%; padding: 9px; border: 1px solid #537f97; color: #e3f6ff; background: #071626; font: 14px/1.6 Consolas, "Yu Gothic UI", sans-serif; }
+.arena-interface textarea { resize: vertical; min-height: 90px; }
+.arena-interface pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 370px; overflow: auto; padding: 14px; font: 14px/1.7 Consolas, "Yu Gothic UI", monospace; }
+.arena-interface .panel { margin-bottom: 18px; }
+.arena-interface .result-box { border-left: 3px solid #9be9d5; background: #10323f; padding: 15px; margin: 15px 0; }
+.arena-interface .result-box.failed { border-color: #e5b280; }
+#hard-alert { border-color: #deb681; color: #ffe2b3; }
+.arena-guide { display: flex; align-items: center; gap: 25px; }
+.arena-guide .ai-core { flex-shrink: 0; }
+.arena-guide p { white-space: pre-wrap; }
+#arena-message { min-height: 24px; color: #beecf5; }
+@media (max-width: 760px) {
+  .arena-shell { padding: 10px; }
+  .arena-header { flex-wrap: wrap; }
+  .target-grid, .arena-columns { grid-template-columns: 1fr; }
+  .arena-guide { align-items: flex-start; gap: 15px; }
+  .arena-guide .ai-core { width: 75px; height: 75px; }
+}

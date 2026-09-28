@@ -173,5 +173,5 @@ def test_existing_pages_share_hud_theme(client):
         assert 'class="hud-interface ' in response.get_data(as_text=True), path
     top = client.get("/").get_data(as_text=True)
     assert "Build" in top and "Attack &amp; Defend" in top
-    assert top.count("準備中") == 1
+    assert 'href="/arena/"' in top
     assert 'href="/build/"' in top

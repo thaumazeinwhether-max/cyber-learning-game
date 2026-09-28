@@ -74,7 +74,16 @@ Learnフェーズで身につけた知識を使い、自分の仮想システム
 
 ## Status
 
-正式カリキュラムの第1〜12訓練と、Build開発ラボの初期版を実装済みです。Attack & Defendは準備中です。
+正式カリキュラムの第1〜12訓練、Build開発ラボ、Attack & Defendの初期版を実装済みです。
+
+## Attack & Defendの使い方
+
+トップの「攻防演習へ」から、架空サービスへのHTTP操作とBuildアプリの隔離コピーを使った防御演習ができます。
+実行にはBuildと同じDocker環境と `$env:BUILD_DOCKER_ENABLED = "1"` が必要です。
+EasyはLocal Guideあり、Normalは支援なし、Hardは複数段階の攻略と表示中の不定時攻撃です。
+各難易度4件のAttack定義、2テーマのDefendを用意しています。OpenAI APIは使いません。
+コピーへの操作は元のBuildコード・DB・Session・チャットへ書き戻しません。
+起動、安全境界、シナリオ追加方法は [docs/ATTACK_DEFEND.md](docs/ATTACK_DEFEND.md) を参照してください。
 
 ## Buildフェーズの使い方
 

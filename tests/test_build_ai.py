@@ -248,13 +248,21 @@ def test_docker_payload_excludes_openai_credentials(monkeypatch, project):
     from src import build_runtime
     monkeypatch.setenv("OPENAI_API_KEY", "host-only-api-key")
 
-    def capture(command, payload):
+    def capture(command, payload, **kwargs):
         assert b"host-only-api-key" not in payload
-        assert "--network=none" in command
+        assert command[3] == "start"
         assert not any(item in command for item in ("--env", "-e", "--env-file", "--mount", "-v"))
         return json.dumps({"html": "ok", "status": 200, "state": {}}).encode()
 
+    def command_result(command, **kwargs):
+        from subprocess import CompletedProcess
+        if command[3] == "create":
+            assert "--network=none" in command
+            assert "--read-only" in command
+            assert not any(item in command for item in ("--env", "-e", "--env-file", "--mount", "-v"))
+        return CompletedProcess(command, 0)
+
     monkeypatch.setattr(build_runtime, "bounded_container_call", capture)
-    monkeypatch.setattr(build_runtime.subprocess, "run", lambda *args, **kwargs: None)
+    monkeypatch.setattr(build_runtime.subprocess, "run", command_result)
     DockerRuntime("unix:///var/run/docker.sock").run(project, "/", "GET", {})
     assert "--read-only" in container_command("fixture", "unix:///var/run/docker.sock")

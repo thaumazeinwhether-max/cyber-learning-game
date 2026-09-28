@@ -70,7 +70,7 @@ def test_build_ui_and_phase_navigation(setup):
     assert "allow-same-origin" not in page
     top = client.get("/").get_data(as_text=True)
     assert 'href="/build/"' in top
-    assert "Attack &amp; Defend" in top and top.count("準備中") == 1
+    assert "Attack &amp; Defend" in top and 'href="/arena/"' in top
     assert client.get("/learn/").status_code == 200
     assert client.get("/build/").headers["Cache-Control"] == "no-store"
     assert client.get("/build/").headers["X-Frame-Options"] == "DENY"
@@ -277,7 +277,7 @@ def test_ai_provider_boundary_and_failure_fallback(setup):
 def test_docker_command_has_no_host_mount_or_network():
     command = container_command("cyber-build-test", "unix:///var/run/docker.sock")
     for flag in ("--network=none", "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges",
-                 "--memory=192m", "--memory-swap=192m", "--pids-limit=32", "--user=65534:65534", "--pull=never"):
+                 "--memory=192m", "--memory-swap=192m", "--pids-limit=32", "--user=65534:65534", "--pull=never", "--rm"):
         assert flag in command
     for unsafe in ("--privileged", "-v", "--volume", "--mount", "--env-file", "-p"):
         assert unsafe not in command
@@ -330,16 +330,20 @@ def test_container_is_cleaned_up_after_timeout(monkeypatch):
 
     calls = []
 
-    def timed_out(command, payload):
-        assert command[0:4] == ["docker", "--host", "unix:///var/run/docker.sock", "run"]
+    def timed_out(command, payload, **kwargs):
+        assert command[0:4] == ["docker", "--host", "unix:///var/run/docker.sock", "start"]
         raise ValueError("実行時間を超えました")
 
     monkeypatch.setattr(build_runtime, "bounded_container_call", timed_out)
-    monkeypatch.setattr(build_runtime.subprocess, "run", lambda command, **kwargs: calls.append(command))
+    def command_result(command, **kwargs):
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 0)
+    monkeypatch.setattr(build_runtime.subprocess, "run", command_result)
     with pytest.raises(ValueError, match="実行時間"):
         build_runtime.DockerRuntime("unix:///var/run/docker.sock").run({"files": {}, "runtime_state": {}, "runtime_secret": "fixture"}, "/", "GET", {})
-    assert calls[0][:5] == ["docker", "--host", "unix:///var/run/docker.sock", "rm", "--force"]
-    assert calls[0][5].startswith("cyber-build-")
+    assert calls[0][3] == "create"
+    assert calls[1][:5] == ["docker", "--host", "unix:///var/run/docker.sock", "rm", "--force"]
+    assert calls[1][5].startswith("cyber-build-")
 
 
 @pytest.mark.parametrize("endpoint", ["tcp://127.0.0.1:2375", "ssh://remote", "npipe:////remote/pipe/docker", None])
