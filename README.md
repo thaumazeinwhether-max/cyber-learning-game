@@ -212,7 +212,3 @@ Development Style
 というサイクルを繰り返しています。
 
 Learn、Build、Attack & Defendを独立した機能にせず、学習内容が次のフェーズへつながる設計を重視しています。
-
-License
-
-未定
