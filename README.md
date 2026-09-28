@@ -13,6 +13,28 @@ IT・Python・Web開発・サイバーセキュリティを、
 
 ---
 
+## Screenshots
+
+### Learn
+
+教材と戦闘形式の問題演習で、IT・Python・Web・セキュリティを段階的に学びます。
+
+![Learn phase](docs/images/learn.png)
+
+### Build
+
+コード編集、ライブプレビュー、AI COREを同一画面で利用しながらWebアプリを開発します。
+
+![Build phase](docs/images/build.png)
+
+### Attack & Defend
+
+3つの仮想ターゲットから対象を選び、安全な隔離環境で攻撃・防御演習を行います。
+
+![Attack and Defend phase](docs/images/attack-defend.png)
+
+---
+
 ## Concept
 
 ### 1. Learn
